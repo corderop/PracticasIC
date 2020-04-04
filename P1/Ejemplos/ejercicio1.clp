@@ -1,5 +1,6 @@
 (deftemplate FP
     (field Nombre)
+    (field Indice)
 )
 
 (deftemplate DE
@@ -13,9 +14,11 @@
 
 (deffacts CreacionDivina
     (FP
-        (Nombre Pedro))
+        (Nombre Pedro)
+        (Indice 1))
     (FP
-        (Nombre Juan))
+        (Nombre Juan)
+        (Indice 2))
 )
 
 (deffacts CreacionDiabolica
@@ -24,15 +27,17 @@
         (Sintomas picor vesiculas))
     (DE
         (Nombre Juan)
-        (Sintomas picor vesiculas))
+        (Sintomas vesiculas))
 )
 
-(defrule DE
+(defrule DJ
     (FP
-        (Nombre ?Nombre))
+        (Nombre ?Nombre)
+        (Indice ?i))
     (DE
         (Nombre ?Nombre)
         (Sintomas picor vesiculas))
     =>
-    (printout t "Oju que enfermo estas " ?Nombre crlf)
+    (printout t "Has muerto pringao " ?Nombre crlf)
+    (retract ?i)
 )
