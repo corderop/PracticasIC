@@ -316,17 +316,6 @@
     (retract ?a)
 )
 
-; Inicia en el centro
-(defrule clisp_inicia_centro
-    (declare (salience 1000))
-    ?f<- (Turno M)
-    (Tablero Juego 1 4 _)
-    =>
-    (printout t "JUEGO en la columna central para iniciar " 4 crlf)
-    (retract ?f)
-    (assert (Juega M 4))
-)
-
 ; Detecta si hay dos fichas en un mismo lugar
 (defrule dos_fichas_horizontal
     (declare (salience 9997))
@@ -348,7 +337,7 @@
     (assert (conectado Juego v ?i1 ?c ?i2 ?c ?jugador))
 )
 
-(defrule dos_fichas_diagonal_derecha_arriba
+(defrule dos_fichas_diagonal_derecha_abajo
     (declare (salience 9997))
     (Tablero ?t ?i1 ?c1 ?jugador)
     (Tablero ?t ?i2 ?c2 ?jugador)
@@ -356,10 +345,10 @@
     (test (= (+ ?i1 1) ?i2))
     (test (neq ?jugador _))
     =>
-    (assert (conectado Juego d2 ?i1 ?c1 ?i2 ?c2 ?jugador))
+    (assert (conectado Juego d1 ?i1 ?c1 ?i2 ?c2 ?jugador))
 )
 
-(defrule dos_fichas_diagonal_derecha_abajo
+(defrule dos_fichas_diagonal_derecha_arriba
     (declare (salience 9997))
     (Tablero ?t ?i1 ?c1 ?jugador)
     (Tablero ?t ?i2 ?c2 ?jugador)
@@ -367,7 +356,7 @@
     (test (= (- ?i1 1) ?i2))
     (test (neq ?jugador _))
     =>
-    (assert (conectado Juego d1 ?i1 ?c1 ?i2 ?c2 ?jugador))
+    (assert (conectado Juego d2 ?i1 ?c1 ?i2 ?c2 ?jugador))
 )
 
 ; Tres en línea
@@ -396,7 +385,7 @@
 )
 
 
-(defrule tres_fichas_diagonal_derecha_arriba
+(defrule tres_fichas_diagonal_derecha_abajo
     (declare (salience 9997))
     (Tablero ?t ?i1 ?c1 ?jugador)
     (Tablero ?t ?i2 ?c2 ?jugador)
@@ -407,10 +396,10 @@
     (test (= (+ ?i2 1) ?i3))
     (test (neq ?jugador _))
     =>
-    (assert (3_en_linea Juego d2 ?i1 ?c1 ?i3 ?c3 ?jugador))
+    (assert (3_en_linea Juego d1 ?i1 ?c1 ?i3 ?c3 ?jugador))
 )
 
-(defrule tres_fichas_diagonal_derecha_abajo
+(defrule tres_fichas_diagonal_derecha_arriba
     (declare (salience 9997))
     (Tablero ?t ?i1 ?c1 ?jugador)
     (Tablero ?t ?i2 ?c2 ?jugador)
@@ -421,11 +410,14 @@
     (test (= (- ?i2 1) ?i3))
     (test (neq ?jugador _))
     =>
-    (assert (3_en_linea Juego d1 ?i1 ?c1 ?i3 ?c3 ?jugador))
+    (assert (3_en_linea Juego d2 ?i1 ?c1 ?i3 ?c3 ?jugador))
 )
 
 ; Reglas para deducir si ganaría
 
+; Calcula cuando está a una accion de ganar alguien cuando la forma de las
+; fichas es la siguiente:
+; X X X _ ó _ X X X
 (defrule ganaria_horizontal
     (declare (salience 9996))
     (3_en_linea Juego h ?i ?c1 ?i ?c2 ?jugador)
@@ -436,6 +428,8 @@
     (assert (ganaria ?jugador ?c3))
 )
 
+; Calcula cuando está a una accion de ganar alguien cuando la forma de las
+; fichas es en vertical
 (defrule ganaria_vertical
     (declare (salience 9996))
     (3_en_linea Juego v ?i1 ?c ?i2 ?c ?jugador)
@@ -446,26 +440,243 @@
     (assert (ganaria ?jugador ?c))
 )
 
+; Calcula cuando está a una accion de ganar alguien cuando la forma de las
+; fichas es la siguiente:
+; X X _ X
 (defrule gana_2_horizontal_derecha
     (declare (salience 9996))
+    ; Busca dos conectadas X X
     (conectado Juego h ?i ?c1 ?i ?c2 ?jugador)
+    ; Busca X X Y X, es decir una X a la derecha
     (Tablero Juego ?i ?c3 ?jugador)
-    (Tablero Juego ?i ?c4 _)
     (test (= (+ ?c2 2) ?c3))
+    ; Busca X X _ X, un espacio en medio
+    (Tablero Juego ?i ?c4 _)
     (test (= (+ ?c2 1) ?c4))
+    ; Busca que la pieza caiga en ese sitio
     (caeria ?i ?c4)
     =>
     (assert (ganaria ?jugador ?c4))
+)
+
+; Calcula cuando está a una accion de ganar alguien cuando la forma de las
+; fichas es la siguiente:
+; X _ X X
+(defrule gana_2_horizontal_izquierda
+    (declare (salience 9996))
+    ; Busca dos conectadas X X
+    (conectado Juego h ?i ?c1 ?i ?c2 ?jugador)
+    ; Busca X Y X X, es decir una X a la izquierda
+    (Tablero Juego ?i ?c3 ?jugador)
+    (test (= (- ?c1 2) ?c3))
+    ; Busca X _ X X, es decir un espacio en medio
+    (Tablero Juego ?i ?c4 _)
+    (test (= (- ?c1 1) ?c4))
+    ; Busca que la pieza caiga en ese sitio
+    (caeria ?i ?c4)
+    =>
+    (assert (ganaria ?jugador ?c4))
+)
+
+; Calcula cuando está a una accion de ganar en diagonal hacia abajo
+; _ · · · | X · · ·
+; · X · · | · X · ·
+; · · X · | · · X ·
+; · · · X | · · · _
+(defrule ganaria_diagonal_abajo
+    (declare (salience 9996))
+    (3_en_linea Juego d1 ?i1 ?c1 ?i2 ?c2 ?jugador)
+    (Tablero Juego ?i3 ?c3 _)
+    (test (or 
+            (and (= (+ ?c2 1) ?c3) (= (+ ?i2 1) ?i3))
+            (and (= (- ?c1 1) ?c3) (= (- ?i1 1) ?i3))))
+    (caeria ?i3 ?c3)
+    =>
+    (assert (ganaria ?jugador ?c3))
+)
+
+; Calcula cuando está a una accion de ganar en diagonal hacia arriba
+; · · · X | · · · _
+; · · X · | · · X ·
+; · X · · | · X · ·
+; _ · · · | X · · ·
+(defrule ganaria_diagonal_arriba
+    (declare (salience 9996))
+    (3_en_linea Juego d2 ?i1 ?c1 ?i2 ?c2 ?jugador)
+    (Tablero Juego ?i3 ?c3 _)
+    (test (or 
+            ; Arriba
+            (and (= (+ ?c2 1) ?c3) (= (- ?i2 1) ?i3))
+            ; Abajo
+            (and (= (- ?c1 1) ?c3) (= (+ ?i1 1) ?i3))))
+    (caeria ?i3 ?c3)
+    =>
+    (assert (ganaria ?jugador ?c3))
 )
 
 ; Cuando se introduce una nueva ficha en una columna,
 ; se elimina la posibilidad de ganar al introducir
 ; una ficha en esa columna. Si la ha introducido el rival
 ; seguirá el juego, si no ganaría el que tenía ya esta posibilidad.
-(defrule elimina_ganaria_horizontal
+(defrule elimina_ganaria
     (declare (salience 9998))
     (Juega ? ?c)
     ?j <- (ganaria ? ?c)
     =>
     (retract ?j)
+)
+
+; Jugadas de la máquina
+
+; Inicia en el centro
+(defrule clisp_inicia_centro
+    (declare (salience 1000))
+    ?f<- (Turno M)
+    (Tablero Juego 7 4 _)
+    =>
+    (printout t "JUEGO en la columna central para iniciar " 4 crlf)
+    (retract ?f)
+    (assert (Juega M 4))
+)
+
+; Tapa si ganaría rival
+(defrule tapa_victoria_rival
+    (declare (salience 1050))
+    ?f<- (Turno M)
+    (ganaria J ?i)
+    =>
+    (printout t "JUEGO en la columna " ?i " para tapar victoria" crlf)
+    (retract ?f)
+    (assert (Juega M ?i))
+)
+
+; Introduce si esto lo hace ganar
+(defrule busca_victoria
+    (declare (salience 1051))
+    ?f<- (Turno M)
+    (ganaria M ?i)
+    =>
+    (printout t "JUEGO en la columna " ?i " para ganar" crlf)
+    (retract ?f)
+    (assert (Juega M ?i))
+)
+
+; Evita que el rival tenga 3 en raya y se acerque a ganar
+(defrule tapo_2_horizontal
+    (declare (salience 1030))
+    ?f<- (Turno M)
+    (conectado Juego h ?i ?c1 ?i ?c2 J)
+    (Tablero Juego ?i ?c3 _)
+    (test (or 
+        (= (+ ?c2 1) ?c3) 
+        (= (- ?c1 1) ?c3) ))
+    (caeria ?i ?c3)
+    =>
+    (printout t "JUEGO en la columna " ?c3 " para evitar que el rival tenga 3 en raya (h)" crlf)
+    (retract ?f)
+    (assert (Juega M ?c3))
+)
+
+(defrule tapo_2_diagonal_abajo
+    (declare (salience 1030))
+    ?f<- (Turno M)
+    (conectado Juego d1 ?i1 ?c1 ?i2 ?c2 J)
+    (Tablero Juego ?i3 ?c3 _)
+    (test (or 
+        (and (= (+ ?c2 1) ?c3) (= (+ ?i2 1) ?i3))
+        (and (= (- ?c1 1) ?c3) (= (- ?i1 1) ?i3)) ))
+    (caeria ?i3 ?c3)
+    =>
+    (printout t "JUEGO en la columna " ?c3 " para evitar que el rival tenga 3 en raya (dab)" crlf)
+    (retract ?f)
+    (assert (Juega M ?c3))
+)
+
+(defrule tapo_2_diagonal_arriba
+    (declare (salience 1030))
+    ?f<- (Turno M)
+    (conectado Juego d2 ?i1 ?c1 ?i2 ?c2 J)
+    (Tablero Juego ?i3 ?c3 _)
+    (test (or 
+        ; Arriba
+        (and (= (+ ?c2 1) ?c3) (= (- ?i2 1) ?i3))
+        ; Abajo
+        (and (= (- ?c1 1) ?c3) (= (+ ?i1 1) ?i3))))
+    (caeria ?i3 ?c3)
+    =>
+    (printout t "JUEGO en la columna " ?c3 " para evitar que el rival tenga 3 en raya (dar)" crlf)
+    (retract ?f)
+    (assert (Juega M ?c3))
+)
+
+(defrule tapo_2_vertical
+    (declare (salience 1030))
+    ?f<- (Turno M)
+    (conectado Juego v ?i ?c ? ? J)
+    (Tablero Juego ?i3 ?c _)
+    (test (= (- ?i 1) ?i3))
+    =>
+    (printout t "JUEGO en la columna " ?c " para evitar que el rival tenga 3 en raya (v)" crlf)
+    (retract ?f)
+    (assert (Juega M ?c))
+)
+
+; Busco tener 3 en raya
+(defrule busco_3_horizontal
+    (declare (salience 1025))
+    ?f<- (Turno M)
+    (conectado Juego h ?i ?c1 ?i ?c2 M)
+    (Tablero Juego ?i ?c3 _)
+    (test (or 
+        (= (+ ?c2 1) ?c3) 
+        (= (- ?c1 1) ?c3) ))
+    (caeria ?i ?c3)
+    =>
+    (printout t "JUEGO en la columna " ?c3 " para buscar 3 en raya (h)" crlf)
+    (retract ?f)
+    (assert (Juega M ?c3))
+)
+
+(defrule busco_3_diagonal_abajo
+    (declare (salience 1025))
+    ?f<- (Turno M)
+    (conectado Juego d1 ?i1 ?c1 ?i2 ?c2 M)
+    (Tablero Juego ?i3 ?c3 _)
+    (test (or 
+        (and (= (+ ?c2 1) ?c3) (= (+ ?i2 1) ?i3))
+        (and (= (- ?c1 1) ?c3) (= (- ?i1 1) ?i3)) ))
+    (caeria ?i3 ?c3)
+    =>
+    (printout t "JUEGO en la columna " ?c3 " para buscar 3 en raya (dab)" crlf)
+    (retract ?f)
+    (assert (Juega M ?c3))
+)
+
+(defrule bsuco_3_diagonal_arriba
+    (declare (salience 1025))
+    ?f<- (Turno M)
+    (conectado Juego d2 ?i1 ?c1 ?i2 ?c2 M)
+    (Tablero Juego ?i3 ?c3 _)
+    (test (or 
+        ; Arriba
+        (and (= (+ ?c2 1) ?c3) (= (- ?i2 1) ?i3))
+        ; Abajo
+        (and (= (- ?c1 1) ?c3) (= (+ ?i1 1) ?i3))))
+    (caeria ?i3 ?c3)
+    =>
+    (printout t "JUEGO en la columna " ?c3 " para tener 3 en raya (dar)" crlf)
+    (retract ?f)
+    (assert (Juega M ?c3))
+)
+
+(defrule bsuco_3_vertical
+    (declare (salience 1025))
+    ?f<- (Turno M)
+    (conectado Juego v ?i ?c ? ? M)
+    (Tablero Juego ?i3 ?c _)
+    (test (= (- ?i 1) ?i3))
+    =>
+    (printout t "JUEGO en la columna " ?c " para tener 3 en raya (v)" crlf)
+    (retract ?f)
+    (assert (Juega M ?c))
 )
