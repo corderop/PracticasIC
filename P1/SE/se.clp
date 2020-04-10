@@ -1,10 +1,10 @@
 ; Alumno:   Pablo Cordero Romero
 ;           77035152X
 
-; Propiedades a usar que emplearía el experto para realizar el consejo:
+; Propiedades a usar que emplearia el experto para realizar el consejo:
 ; 
-; - (Dificultad 0|1|2|3|4|5), 0 será cuando no le importe
-; - (Orientacion T|P|ns), ns será cuando no le importe
+; - (Dificultad 0|1|2|3|4|5), 0 sera cuando no le importe
+; - (Orientacion T|P|ns), ns sera cuando no le importe
 ; - (Tipo S|H|ns), ns cuando no le importe
 ; - (Asignaturas Rama %)
 
@@ -12,11 +12,11 @@
 ;   PREGUNTAS
 ; --------------------------------------------------------------
 
-; Indica que se inicie la obtención de información
+; Indica que se inicie la obtencion de informacion
 (deffacts Inicio
     (inicio))
 
-; Pregunta y chequea por la primera característica (Dificultad)
+; Pregunta y chequea por la primera caracteristica (Dificultad)
 (defrule introduce_dificultad
     ?i<-(inicio)
     =>
@@ -36,7 +36,7 @@
 )
 ; ---------------------
 
-; Pregunta al usuario si se prefiere una orientación más teórica o práctica de la materia
+; Pregunta al usuario si se prefiere una orientacion mas teorica o practica de la materia
 (defrule introduce_orientacion
     ; Ha introducido el punto previo
     (Dificultad ?i)
@@ -46,13 +46,13 @@
     (assert (Orientacion (read)))
 )
 
-; Comprueba que la orientación introducida es correcta
+; Comprueba que la orientacion introducida es correcta
 (defrule check_orientacion
     ; Ha introducido el punto previo
     ?d <- (Orientacion ?i)
     (test (not (or (eq ?i T) (eq ?i P) (eq ?i ns) )))
     =>
-    (printout t crlf "Solo puedes introducir como opciones 'T' para teoria o 'P' para prácticas." crlf "Si te da igual introduce ns: ")
+    (printout t crlf "Solo puedes introducir como opciones 'T' para teoria o 'P' para practicas." crlf "Si te da igual introduce ns: ")
     (retract ?d)
     (assert (Orientacion (read)))
 )
@@ -82,7 +82,7 @@
 
 ; ---------------------
 ; Ahora le presento las asignaturas que ya ha cursado el estudiante.
-; Cada asignatura normalmente está orientada o es más parecida a las de 
+; Cada asignatura normalmente esta orientada o es mas parecida a las de 
 ; una rama u otra.
 ; 
 (defrule previo_asignaturas
@@ -132,7 +132,7 @@
     (assert (Asignatura IC AC (read)))
 )
 
-; Chequea si el valor de alguna asignatura no se ha introducido de forma válida
+; Chequea si el valor de alguna asignatura no se ha introducido de forma valida
 (defrule chequea_asig_mal
     (declare (salience 10))
     ?d <- (Asignatura ? ?a ?b)
@@ -144,8 +144,8 @@
 )
 
 ; ---------------------
-; Por último le presento una serie de conceptos relacionados con las diferentes ramas
-; El usuarios los puntuará 
+; Por ultimo le presento una serie de conceptos relacionados con las diferentes ramas
+; El usuarios los puntuara 
 ; 
 
 (defrule previo_conceptos
@@ -188,9 +188,9 @@
 ; --------------------------------------------------------------
 ;   RAZONAMIENTO
 ; --------------------------------------------------------------
-; El razonamiento según las características vendrá por una puntuación 
+; El razonamiento segun las caracteristicas vendra por una puntuacion 
 ; de semejanza con cada rama
-; Esta es el valor de cada característica con cada rama
+; Esta es el valor de cada caracteristica con cada rama
 (deffacts puntuacionCaracteristicas
     (Dificultad CSI 5)
     (Dificultad IS 3) 
@@ -209,9 +209,9 @@
     (Tipo TI S)
 )
 
-; Según lo escogido calculo los porcentajes de similitud, teniendo en cuenta
-; Una cosas más que otras.
-; El reparto de porcentajes según la importancia será el siguiente:
+; Segun lo escogido calculo los porcentajes de similitud, teniendo en cuenta
+; Una cosas mas que otras.
+; El reparto de porcentajes segun la importancia sera el siguiente:
 ; Dificultad    - 5%
 ; Orientacion   - 10%
 ; Tipo          - 10%
@@ -242,8 +242,8 @@
     ?r4 <- (Rama Sistemas_de_Informacion SI ?si)
     ?r5 <- (Rama Tecnologias_de_la_Informacion TI ?ti)
     =>
-    ; Si el usuario asume más dificultad que la de la rama -> 5%
-    ; Si asume menos será el porcentaje según la cercanía a la dificultad mediante la formula 5*(1 - (dificultad_rama-dificultad_asumida)/4)
+    ; Si el usuario asume mas dificultad que la de la rama -> 5%
+    ; Si asume menos sera el porcentaje segun la cercania a la dificultad mediante la formula 5*(1 - (dificultad_rama-dificultad_asumida)/4)
     (if(neq ?i 0)
         then
         (if(<= ?a ?i)
@@ -292,7 +292,7 @@
     (assert (dificultad_check))
 )
 
-; Si la orientación del usuario es la misma que la de la rama 10%
+; Si la orientacion del usuario es la misma que la de la rama 10%
 ; Si no 0%
 (defrule porcentaje_orientacion
     (not (orientacion_check))
@@ -408,7 +408,7 @@
     (Asignaturas TI 0)
 )
 
-; Calcula los porcentajes de las asignatura según la media de asignaturas parecedas por las que se le ha preguntado
+; Calcula los porcentajes de las asignatura segun la media de asignaturas parecedas por las que se le ha preguntado
 (defrule porcentaje_asignaturas_IS
     (declare (salience 1))
     ?f <- (Asignatura IS ?asig ?i)
@@ -495,7 +495,7 @@
     (assert (asignaturas_check))
 )
 
-; Añade al global según lo seleccionado en los conceptos
+; Añade al global segun lo seleccionado en los conceptos
 (defrule aniado_por_concepto
     (not (concepto_check))
     (Concepto CSI Problemas ?csi1)
@@ -523,7 +523,7 @@
     (assert (concepto_check))
 )
 
-; En función de los cálculo toma la decisión de una rama
+; En funcion de los calculo toma la decision de una rama
 (defrule coger_mayor
     (declare (salience -50))
     ?f1 <- (Rama ?R1 ?r1 ?v1)
@@ -557,13 +557,13 @@
                         (assert (Rama_mayor ?r5))
                         (assert (Rama_consejo ?R5))
                     else
-                        (assert (Consejo "" "No me has aportado suficiente información como para decantarme por una." "Pablo Cordero"))
+                        (assert (Consejo "" "No me has aportado suficiente informacion como para decantarme por una." "Pablo Cordero"))
     )))))
     (assert (Razonamiento ""))
     (retract ?f1 ?f2 ?f3 ?f4 ?f5)
 )
 
-; Produce el consejo según la dificultad elegida por el usuario
+; Produce el consejo segun la dificultad elegida por el usuario
 (defrule consejo_dificultad
     (declare (salience -51))
     ; Si se ha tomado nota de la dificultad
@@ -576,13 +576,13 @@
     (if(or (= ?d 0) (>= ?d ?dr) ) then
         (bind ?texto (str-cat ?texto "La dificultad para ti es correcta. ") )
     else
-        (bind ?texto (str-cat ?texto "Requerirá un poco más de dificultad en ti. "))
+        (bind ?texto (str-cat ?texto "Requerira un poco mas de dificultad en ti. "))
     )
     (retract ?a ?b)
     (assert (Razonamiento ?texto))
 )
 
-; Produce el consejo según la orientacion elegida por el usuario
+; Produce el consejo segun la orientacion elegida por el usuario
 (defrule consejo_orientacion
     (declare (salience -52))
     ; Si se ha tomado nota de ka orientacion
@@ -594,22 +594,22 @@
     =>
     (if(eq ?d ?dr) then
         (if (eq ?dr T) then
-            (bind ?texto (str-cat ?texto "La orientación es mas teorica. "))
+            (bind ?texto (str-cat ?texto "La orientacion es mas teorica. "))
         else
-            (bind ?texto (str-cat ?texto "La orientación es mas practica. "))
+            (bind ?texto (str-cat ?texto "La orientacion es mas practica. "))
         )
     else
         (if (eq ?dr T) then
-            (bind ?texto (str-cat ?texto "Tendrá un contenido más teorico pero facilmente sobrellevable según tus gustos. "))
+            (bind ?texto (str-cat ?texto "Tendra un contenido mas teorico pero facilmente sobrellevable segun tus gustos. "))
         else
-            (bind ?texto (str-cat ?texto "Tendrá un contenido más practico pero facilmente sobrellevable según tus gustos. "))
+            (bind ?texto (str-cat ?texto "Tendra un contenido mas practico pero facilmente sobrellevable segun tus gustos. "))
         )
     )
     (retract ?a ?b)
     (assert (Razonamiento ?texto))
 )
 
-; Produce el consejo según el tipo elegido por el usuario
+; Produce el consejo segun el tipo elegido por el usuario
 (defrule consejo_tipo
     (declare (salience -53))
     ; Si se ha tomado nota del tipo
@@ -621,22 +621,22 @@
     =>
     (if(eq ?d ?dr) then
         (if (eq ?dr S) then 
-            (bind ?texto (str-cat ?texto "Tratará más el software como es de tu preferencia. "))
+            (bind ?texto (str-cat ?texto "Tratara mas el software como es de tu preferencia. "))
         else
-            (bind ?texto (str-cat ?texto "Tratará más el hardware como es de tu preferencia. "))
+            (bind ?texto (str-cat ?texto "Tratara mas el hardware como es de tu preferencia. "))
         )
     else
         (if (eq ?dr S) then
-            (bind ?texto (str-cat ?texto "Tratará más el software pero seguramente de una forma diferente a la que piensas."))
+            (bind ?texto (str-cat ?texto "Tratara mas el software pero seguramente de una forma diferente a la que piensas."))
         else
-            (bind ?texto (str-cat ?texto "Tratará más el hard pero seguramente de una forma diferente a la que piensas."))
+            (bind ?texto (str-cat ?texto "Tratara mas el hard pero seguramente de una forma diferente a la que piensas."))
         )
     )
     (retract ?a ?b)
     (assert (Razonamiento ?texto))
 )
 
-; Produce el consejo según las asignaturas elegidas por el usuario
+; Produce el consejo segun las asignaturas elegidas por el usuario
 (defrule consejo_asignaturas
     (declare (salience -54))
     ; Si se ha tomado nota de la asignaturas
@@ -648,7 +648,7 @@
     (if(> ?d 60) then
         (bind ?texto (str-cat ?texto "Asignaturas que te han gustado me hacen decantarme por esta eleccion."))
     else
-        (bind ?texto (str-cat ?texto "Algunas asignaturas similares no han sido de preferencia, pero algunas otras sí"))
+        (bind ?texto (str-cat ?texto "Algunas asignaturas similares no han sido de preferencia, pero algunas otras si"))
     )
     (retract ?a ?b)
     (assert (Razonamiento ?texto))
@@ -664,35 +664,35 @@
     =>
     (if(> ?d 60) then
         (if(eq ?nombre Redes) then
-            (bind ?texto (str-cat ?texto "Las redes es algo interesante para ti y está relacionado con esta rama."))
+            (bind ?texto (str-cat ?texto "Las redes es algo interesante para ti y esta relacionado con esta rama."))
         )
         (if(eq ?nombre Programacion) then
-            (bind ?texto (str-cat ?texto "La programacion es algo interesante para ti y está relacionado con esta rama."))
+            (bind ?texto (str-cat ?texto "La programacion es algo interesante para ti y esta relacionado con esta rama."))
         )
         (if(eq ?nombre Informacion) then
-            (bind ?texto (str-cat ?texto "La gestion de la informacion es algo interesante para ti y está relacionado con esta rama."))
+            (bind ?texto (str-cat ?texto "La gestion de la informacion es algo interesante para ti y esta relacionado con esta rama."))
         )
         (if(eq ?nombre Problemas) then
-            (bind ?texto (str-cat ?texto "La solucion de problemas es algo interesante para ti y está relacionado con esta rama."))
+            (bind ?texto (str-cat ?texto "La solucion de problemas es algo interesante para ti y esta relacionado con esta rama."))
         )
         (if(eq ?nombre Cloud) then
-            (bind ?texto (str-cat ?texto "El Cloud Computing es algo interesante para ti y está relacionado con esta rama."))
+            (bind ?texto (str-cat ?texto "El Cloud Computing es algo interesante para ti y esta relacionado con esta rama."))
         )
     else
         (if(eq ?nombre Redes) then
-            (bind ?texto (str-cat ?texto "Las redes no es una de tus preferencias, pero aun así esta rama abarcara mas cosas"))
+            (bind ?texto (str-cat ?texto "Las redes no es una de tus preferencias, pero aun asi esta rama abarcara mas cosas"))
         )
         (if(eq ?nombre Programacion) then
-            (bind ?texto (str-cat ?texto "La programacion no es una de tus preferencias, pero aun así esta rama abarcara mas cosas"))
+            (bind ?texto (str-cat ?texto "La programacion no es una de tus preferencias, pero aun asi esta rama abarcara mas cosas"))
         )
         (if(eq ?nombre Informacion) then
-            (bind ?texto (str-cat ?texto "La gestion de informacion no es una de tus preferencias, pero aun así esta rama abarcara mas cosas"))
+            (bind ?texto (str-cat ?texto "La gestion de informacion no es una de tus preferencias, pero aun asi esta rama abarcara mas cosas"))
         )
         (if(eq ?nombre Problemas) then
-            (bind ?texto (str-cat ?texto "La resolucion de problemas no es una de tus preferencias, pero aun así esta rama abarcara mas cosas"))
+            (bind ?texto (str-cat ?texto "La resolucion de problemas no es una de tus preferencias, pero aun asi esta rama abarcara mas cosas"))
         )
         (if(eq ?nombre Cloud) then
-            (bind ?texto (str-cat ?texto "El Cloud Computacion no es una de tus preferencias, pero aun así esta rama abarcara mas cosas"))
+            (bind ?texto (str-cat ?texto "El Cloud Computacion no es una de tus preferencias, pero aun asi esta rama abarcara mas cosas"))
         )
     )
     (retract ?a ?b)
