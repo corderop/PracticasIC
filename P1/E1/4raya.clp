@@ -561,7 +561,7 @@
     (assert (Juega M ?i))
 )
 
-; Evita que el rival tenga 3 en raya y se acerque a ganar
+; Evita que el rival tenga 3 en raya y se acerque a ganar (todas las funciones tapo_2)
 (defrule tapo_2_horizontal
     (declare (salience 1030))
     ?f<- (Turno M)
@@ -621,6 +621,21 @@
     (assert (Juega M ?c))
 )
 
+; Tapa J _ J
+(defrule tapa_separadas_2
+    (declare (salience 1031))
+    ?f<- (Turno M)
+    (Tablero Juego ?i ?c1 J)
+    (Tablero Juego ?i ?c2 J)
+    (Tablero Juego ?i ?c3 _)
+    (test (and (= (+ ?c1 2) ?c2)
+               (= (+ ?c1 1) ?c3)))
+    =>
+    (printout t "JUEGO en la columna " ?c3 " para evitar 3" crlf)
+    (retract ?f)
+    (assert (Juega M ?c3))
+)
+
 ; Busco tener 3 en raya
 (defrule busco_3_horizontal
     (declare (salience 1025))
@@ -652,7 +667,7 @@
     (assert (Juega M ?c3))
 )
 
-(defrule bsuco_3_diagonal_arriba
+(defrule busco_3_diagonal_arriba
     (declare (salience 1025))
     ?f<- (Turno M)
     (conectado Juego d2 ?i1 ?c1 ?i2 ?c2 M)
@@ -669,7 +684,7 @@
     (assert (Juega M ?c3))
 )
 
-(defrule bsuco_3_vertical
+(defrule busco_3_vertical
     (declare (salience 1025))
     ?f<- (Turno M)
     (conectado Juego v ?i ?c ? ? M)
