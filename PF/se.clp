@@ -274,6 +274,7 @@
 ; Calcula el porcentaje de la dificultad
 (defrule porcentaje_dificultad
     (not (dificultad_check))
+    (Porcentaje_Dificultad ?per)
     (Dificultad ?i)
     (Dificultad CSI ?a)
     (Dificultad IS ?b)
@@ -286,46 +287,46 @@
     ?r4 <- (Rama Sistemas_de_Informacion SI ?si)
     ?r5 <- (Rama Tecnologias_de_la_Informacion TI ?ti)
     =>
-    ; Si el usuario asume mas dificultad que la de la rama -> 5%
-    ; Si asume menos sera el porcentaje segun la cercania a la dificultad mediante la formula 5*(1 - (dificultad_rama-dificultad_asumida)/4)
+    ; Si el usuario asume mas dificultad que la de la rama -> suma todo el porcentaje
+    ; Si asume menos sera el porcentaje segun la cercania a la dificultad mediante la formula porcentaje*(1 - (dificultad_rama-dificultad_asumida)/4)
     (if(neq ?i 0)
         then
         (if(<= ?a ?i)
             then
-                (bind ?csi (+ ?csi 5) )
+                (bind ?csi (+ ?csi ?per) )
             else
-                (bind ?csi (+ ?csi (* 5 (- 1 (/ (- ?a ?i) 4)))))
+                (bind ?csi (+ ?csi (* ?per (- 1 (/ (- ?a ?i) 4)))))
         )
         (if(<= ?b ?i)
             then
-                (bind ?is (+ ?is 5) )
+                (bind ?is (+ ?is ?per) )
             else
-                (bind ?is (+ ?is (* 5 (- 1 (/ (- ?b ?i) 4)))))
+                (bind ?is (+ ?is (* ?per (- 1 (/ (- ?b ?i) 4)))))
         )
         (if(<= ?c ?i)
             then
-                (bind ?ic (+ ?ic 5) )
+                (bind ?ic (+ ?ic ?per) )
             else
-                (bind ?ic (+ ?ic (* 5 (- 1 (/ (- ?c ?i) 4)))))
+                (bind ?ic (+ ?ic (* ?per (- 1 (/ (- ?c ?i) 4)))))
         )
         (if(<= ?d ?i)
             then
-                (bind ?si (+ ?si 5) )
+                (bind ?si (+ ?si ?per) )
             else
-                (bind ?si (+ ?si (* 5 (- 1 (/ (- ?d ?i) 4)))))
+                (bind ?si (+ ?si (* ?per (- 1 (/ (- ?d ?i) 4)))))
         )
         (if(<= ?e ?i)
             then
-                (bind ?ti (+ ?ti 5) )
+                (bind ?ti (+ ?ti ?per) )
             else
-                (bind ?ti (+ ?ti (* 5 (- 1 (/ (- ?e ?i) 4)))))
+                (bind ?ti (+ ?ti (* ?per (- 1 (/ (- ?e ?i) 4)))))
         )
     else
-        (bind ?csi (+ ?csi 5))
-        (bind ?is (+ ?is 5))
-        (bind ?ic (+ ?ic 5))
-        (bind ?si (+ ?si 5))
-        (bind ?ti (+ ?ti 5))
+        (bind ?csi (+ ?csi ?per))
+        (bind ?is (+ ?is ?per))
+        (bind ?ic (+ ?ic ?per))
+        (bind ?si (+ ?si ?per))
+        (bind ?ti (+ ?ti ?per))
     )
     (retract ?r1 ?r2 ?r3 ?r4 ?r5)
     (assert (Rama Computacion_y_Sistemas_Inteligentes CSI ?csi))
@@ -336,10 +337,11 @@
     (assert (dificultad_check))
 )
 
-; Si la orientacion del usuario es la misma que la de la rama 10%
+; Si la orientacion del usuario es la misma que la de la rama se suma el %
 ; Si no 0%
 (defrule porcentaje_orientacion
     (not (orientacion_check))
+    (Porcentaje_Orientacion ?per)
     (Orientacion ?i)
     (Orientacion CSI ?a)
     (Orientacion IS ?b) 
@@ -356,30 +358,30 @@
         then
         (if(eq ?a ?i)
             then
-                (bind ?csi (+ ?csi 10) )
+                (bind ?csi (+ ?csi ?per) )
         )
         (if(eq ?b ?i)
             then
-                (bind ?is (+ ?is 10) )
+                (bind ?is (+ ?is ?per) )
         )
         (if(eq ?c ?i)
             then
-                (bind ?ic (+ ?ic 10) )
+                (bind ?ic (+ ?ic ?per) )
         )
         (if(eq ?d ?i)
             then
-                (bind ?si (+ ?si 10) )
+                (bind ?si (+ ?si ?per) )
         )
         (if(eq ?e ?i)
             then
-                (bind ?ti (+ ?ti 10) )
+                (bind ?ti (+ ?ti ?per) )
         )
     else
-        (bind ?csi (+ ?csi 10))
-        (bind ?is (+ ?is 10))
-        (bind ?ic (+ ?ic 10))
-        (bind ?si (+ ?si 10))
-        (bind ?ti (+ ?ti 10))
+        (bind ?csi (+ ?csi ?per))
+        (bind ?is (+ ?is ?per))
+        (bind ?ic (+ ?ic ?per))
+        (bind ?si (+ ?si ?per))
+        (bind ?ti (+ ?ti ?per))
     )
     (retract ?r1 ?r2 ?r3 ?r4 ?r5)
     (assert (Rama Computacion_y_Sistemas_Inteligentes CSI ?csi))
@@ -390,10 +392,11 @@
     (assert (orientacion_check))
 )
 
-; Si el tipo del usuario es el mismo que la de la rama 10%
+; Si el tipo del usuario es el mismo que la de la rama se suma el %
 ; Si no 0%
 (defrule porcentaje_tipo
     (not (tipo_check))
+    (Porcentaje_Tipo ?per)
     (Tipo ?i)
     (Tipo CSI ?a)
     (Tipo IS ?b) 
@@ -410,30 +413,30 @@
         then
         (if(eq ?a ?i)
             then
-                (bind ?csi (+ ?csi 10) )
+                (bind ?csi (+ ?csi ?per) )
         )
         (if(eq ?b ?i)
             then
-                (bind ?is (+ ?is 10) )
+                (bind ?is (+ ?is ?per) )
         )
         (if(eq ?c ?i)
             then
-                (bind ?ic (+ ?ic 10) )
+                (bind ?ic (+ ?ic ?per) )
         )
         (if(eq ?d ?i)
             then
-                (bind ?si (+ ?si 10) )
+                (bind ?si (+ ?si ?per) )
         )
         (if(eq ?e ?i)
             then
-                (bind ?ti (+ ?ti 10) )
+                (bind ?ti (+ ?ti ?per) )
         )
     else
-        (bind ?csi (+ ?csi 10))
-        (bind ?is (+ ?is 10))
-        (bind ?ic (+ ?ic 10))
-        (bind ?si (+ ?si 10))
-        (bind ?ti (+ ?ti 10))
+        (bind ?csi (+ ?csi ?per))
+        (bind ?is (+ ?is ?per))
+        (bind ?ic (+ ?ic ?per))
+        (bind ?si (+ ?si ?per))
+        (bind ?ti (+ ?ti ?per))
     )
     (retract ?r1 ?r2 ?r3 ?r4 ?r5)
     (assert (Rama Computacion_y_Sistemas_Inteligentes CSI ?csi))
@@ -513,6 +516,7 @@
     (declare (salience -1))
     (not (asignaturas_check))
     (comienzo_asignaturas ?a)
+    (Porcentaje_Asignaturas ?per)
     (test (neq ?a no))
     (Asignaturas CSI ?csi1)
     (Asignaturas IS ?is1)
@@ -525,11 +529,11 @@
     ?r4 <- (Rama Sistemas_de_Informacion SI ?si)
     ?r5 <- (Rama Tecnologias_de_la_Informacion TI ?ti)
     =>
-    (bind ?csi (+ ?csi (* ?csi1 0.6)))
-    (bind ?is (+ ?is (* ?is1 0.6)))
-    (bind ?ic (+ ?ic (* ?ic1 0.6)))
-    (bind ?si (+ ?si (* ?si1 0.6)))
-    (bind ?ti (+ ?ti (* ?ti1 0.6)))
+    (bind ?csi (+ ?csi (* ?csi1 (/ ?per 100))))
+    (bind ?is (+ ?is (* ?is1 (/ ?per 100))))
+    (bind ?ic (+ ?ic (* ?ic1 (/ ?per 100))))
+    (bind ?si (+ ?si (* ?si1 (/ ?per 100))))
+    (bind ?ti (+ ?ti (* ?ti1 (/ ?per 100))))
     (retract ?r1 ?r2 ?r3 ?r4 ?r5)
     (assert (Rama Computacion_y_Sistemas_Inteligentes CSI ?csi))
     (assert (Rama Ingenieria_del_Software IS ?is))
@@ -542,6 +546,7 @@
 ; Añade al global segun lo seleccionado en los conceptos
 (defrule aniado_por_concepto
     (not (concepto_check))
+    (Porcentaje_Conceptos ?per)
     (Concepto CSI Problemas ?csi1)
     (Concepto IS Programacion ?is1)
     (Concepto IC Cloud ?ic1)
@@ -553,11 +558,11 @@
     ?r4 <- (Rama Sistemas_de_Informacion SI ?si)
     ?r5 <- (Rama Tecnologias_de_la_Informacion TI ?ti)
     =>
-    (bind ?csi (+ ?csi (* ?csi1 0.15)))
-    (bind ?is (+ ?is (* ?is1 0.15)))
-    (bind ?ic (+ ?ic (* ?ic1 0.15)))
-    (bind ?si (+ ?si (* ?si1 0.15)))
-    (bind ?ti (+ ?ti (* ?ti1 0.15)))
+    (bind ?csi (+ ?csi (* ?csi1 (/ ?per 100))))
+    (bind ?is (+ ?is (* ?is1 (/ ?per 100))))
+    (bind ?ic (+ ?ic (* ?ic1 (/ ?per 100))))
+    (bind ?si (+ ?si (* ?si1 (/ ?per 100))))
+    (bind ?ti (+ ?ti (* ?ti1 (/ ?per 100))))
     (retract ?r1 ?r2 ?r3 ?r4 ?r5)
     (assert (Rama Computacion_y_Sistemas_Inteligentes CSI ?csi))
     (assert (Rama Ingenieria_del_Software IS ?is))
