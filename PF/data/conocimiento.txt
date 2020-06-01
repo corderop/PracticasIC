@@ -1,3 +1,10 @@
+Porcentajes
+Dificultad 5
+Orientacion 10
+Tipo 10
+Asignaturas 60
+Conceptos 15
+
 Dificultad CSI 5
 Dificultad IS 3
 Dificultad IC 4 
@@ -15,3 +22,22 @@ Tipo IS S
 Tipo IC H 
 Tipo SI S 
 Tipo TI S
+
+Asignatura SI Estructuras_de_datos
+Asignatura SI Fundamentos_de_bases_de_datos
+
+Asignatura IC Fundamentos_fisicos_y_tecnologicos
+Asignatura IC Tecnologia_y_organizacion_de_computadores
+Asignatura IC Estructuras_de_computadores
+Asignatura IC Arquitectura_de_computadores
+
+Asignatura TI Programacion_y_diseño_orientado_a_objetos
+
+Asignatura CSI Logica_y_metodos_discretos
+Asignatura CSI Inteligencia_Artificial
+Asignatura CSI Algoritmica
+
+Asignatura IS Fundamentos_del_software
+Asignatura IS Sistemas_concurrentes_y_distribuidos
+Asignatura IS Sistemas_operativos
+Asignatura IS Fundamentos_de_ingenieria_del_software
