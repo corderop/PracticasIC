@@ -764,4 +764,15 @@
     =>
     (retract ?f)
     (printout t crlf crlf "El experto " ?apodo " te aconseja escoger la rama:" crlf ?rama crlf "Ha sido por el siguiente motivo: " crlf ?texto crlf crlf)
+    (assert (asignaturas_posibles))
+)
+
+; -----------------------------------------------------------
+;   ASIGNATURAS POSIBLES PARA UNOS CRÉDITOS
+; -----------------------------------------------------------
+
+(defrule asignaturas_por_coger
+    
+    =>
+
 )
