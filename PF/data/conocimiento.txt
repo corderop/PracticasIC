@@ -1,0 +1,17 @@
+Dificultad CSI 5
+Dificultad IS 3
+Dificultad IC 4 
+Dificultad SI 3 
+Dificultad TI 2
+
+Orientacion CSI P
+Orientacion IS P
+Orientacion IC T
+Orientacion SI T
+Orientacion TI T
+
+Tipo CSI S
+Tipo IS S 
+Tipo IC H 
+Tipo SI S 
+Tipo TI S
