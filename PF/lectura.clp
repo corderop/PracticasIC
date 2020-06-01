@@ -53,6 +53,11 @@
             (bind ?v2 (read file))
             (assert (Asignatura ?v1 ?v2))
         )
+        (if (eq ?valor Concepto) then
+            (bind ?v1 (read file))
+            (bind ?v2 (read file))
+            (assert (Concepto ?v1 ?v2))
+        )
         (assert (SeguirLeyendo))
     )
 )
@@ -62,6 +67,14 @@
     =>
     (printout t ?na ": ")
     (assert (Asignatura ?r ?na (read)))
+    (retract ?a)
+)
+
+(defrule leer_concepto
+    ?a <- (Concepto ?r ?nc)
+    =>
+    (printout t ?nc ": ")
+    (assert (Concepto ?r ?nc (read)))
     (retract ?a)
 )
 

@@ -41,3 +41,9 @@ Asignatura IS Fundamentos_del_software
 Asignatura IS Sistemas_concurrentes_y_distribuidos
 Asignatura IS Sistemas_operativos
 Asignatura IS Fundamentos_de_ingenieria_del_software
+
+Concepto TI Redes
+Concepto IS Programacion 
+Concepto SI Tratamiento_de_la_informacion
+Concepto CSI Resolucion_de_problemas
+Concepto IC Cloud_computing

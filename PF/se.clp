@@ -9,6 +9,98 @@
 ; - (Asignaturas Rama %)
 
 ; --------------------------------------------------------------
+;   LECTURA DE LA BASE DE CONOCIMIENTO
+; --------------------------------------------------------------
+; Indica que se inicie la lectura
+(deffacts Leer
+    (leer))
+
+; Abre el archivo 
+(defrule openfile_read
+    (declare (salience 1000))
+    (leer)
+    =>
+    (open "/home/pcordero/Software/PracticasUGR/PracticasIC/PF/data/conocimiento.txt" file)
+    (assert (SeguirLeyendo))
+)
+
+; Realiza la lectura de cada una de las lineas
+(defrule readfile
+    (declare (salience 1000))
+    ?f <- (SeguirLeyendo)
+    =>
+    (bind ?valor (read file))
+    (retract ?f)
+    ; Realizado para detectar el final del archivo
+    (if (neq ?valor EOF) then
+        ; Si encuentra una linea comenzada por dificultad
+        ; significará que esa linea contiene la dificultad
+        ; de cada rama
+        (if (eq ?valor Dificultad) then
+            (bind ?v1 (read file))
+            (bind ?v2 (read file))
+            (assert (Dificultad ?v1 ?v2))
+        )
+        ; Si encuentra una linea comenzada por orientación
+        ; significará que esa linea contiene la orientación
+        ; de cada rama
+        (if (eq ?valor Orientacion) then
+            (bind ?v1 (read file))
+            (bind ?v2 (read file))
+            (assert (Orientacion ?v1 ?v2))
+        )
+        ; Si encuentra una linea comenzada por tipo
+        ; significará que esa linea contiene la tipo
+        ; de cada rama
+        (if (eq ?valor Tipo) then
+            (bind ?v1 (read file))
+            (bind ?v2 (read file))
+            (assert (Tipo ?v1 ?v2))
+        )
+        ; Aquí se obtendrá el porcentaje que se le dará a cada apartado
+        ; según tenga más o menos importacia
+        (if (eq ?valor Porcentajes) then
+            (bind ?v (read file))
+            (bind ?v1 (read file))
+            (assert (Porcentaje_Dificultad ?v1))
+            (bind ?v (read file))
+            (bind ?v1 (read file))
+            (assert (Porcentaje_Orientacion ?v1))
+            (bind ?v (read file))
+            (bind ?v1 (read file))
+            (assert (Porcentaje_Tipo ?v1))
+            (bind ?v (read file))
+            (bind ?v1 (read file))
+            (assert (Porcentaje_Asignaturas ?v1))
+            (bind ?v (read file))
+            (bind ?v1 (read file))
+            (assert (Porcentaje_Conceptos ?v1))
+        )
+        ; Se recoge la asociación de ramas con asignaturas
+        (if (eq ?valor Asignatura) then
+            (bind ?v1 (read file))
+            (bind ?v2 (read file))
+            (assert (Asignatura ?v1 ?v2))
+        )
+        ; Se recoge la asociación de ramas con conceptos
+        (if (eq ?valor Concepto) then
+            (bind ?v1 (read file))
+            (bind ?v2 (read file))
+            (assert (Concepto ?v1 ?v2))
+        )
+        (assert (SeguirLeyendo))
+    )
+)
+
+(defrule closefile_read
+    (declare (salience 995))
+    ?f <- (leer)
+    =>
+    (close file)
+    (retract ?f)
+)
+
+; --------------------------------------------------------------
 ;   PREGUNTAS
 ; --------------------------------------------------------------
 
@@ -95,52 +187,28 @@
     (assert (conceptos))
 )
 
-(defrule asignaturas
+; Lee 1 por 1 el valor de la asignatura
+(defrule leer_asig
     (declare (salience 9))
+    ?a <- (Asignatura ?r ?na)
     (comienzo_asignaturas ?i)
     (test (neq ?i no))
     =>
-    (printout t "Fundamentos del Software: ")
-    (assert (Asignatura IS FS (read)))
-    (printout t "Fundamentos fisicos y tecnologicos: ")
-    (assert (Asignatura IC FFT (read)))
-    (printout t "Estadistica: ")
-    (assert (Asignatura CSI ES (read)))
-    (printout t "Logica y metodos discretos: ")
-    (assert (Asignatura CSI LMD (read)))
-    (printout t "Tecnologia y organizacion de computadores: ")
-    (assert (Asignatura IC TOC (read)))
-    (printout t "Programacion y diseño orientado a objetos: ")
-    (assert (Asignatura TI PDOO (read)))
-    (printout t "Sistemas concurrentes y distribuidos: ")
-    (assert (Asignatura IS SCD (read)))
-    (printout t "Sistemas operativos: ")
-    (assert (Asignatura IS SO (read)))
-    (printout t "Estructuras de datos: ")
-    (assert (Asignatura SI ED (read)))
-    (printout t "Estructura de computadores: ")
-    (assert (Asignatura IC EC (read)))
-    (printout t "Fundamentos de ingenieria del software: ")
-    (assert (Asignatura IS FIS (read)))
-    (printout t "Algoritmica: ")
-    (assert (Asignatura CSI ALG (read)))
-    (printout t "Fundamentos de bases de datos: ")
-    (assert (Asignatura SI FBD (read)))
-    (printout t "Inteligencia Artificial: ")
-    (assert (Asignatura CSI IA (read)))
-    (printout t "Arquitectura de computadores: ")
-    (assert (Asignatura IC AC (read)))
+    (printout t ?na ": ")
+    (assert (Asignatura ?r ?na (read)))
+    (retract ?a)
 )
+
 
 ; Chequea si el valor de alguna asignatura no se ha introducido de forma valida
 (defrule chequea_asig_mal
     (declare (salience 10))
-    ?d <- (Asignatura ? ?a ?b)
+    ?d <- (Asignatura ?r ?a ?b)
     (test (not (and (>= ?b 0) (<= ?b 100))))
     =>
     (printout t "Has introducido mal el valor de :" ?a ". Introducelo de nuevo: ")
     (retract ?d)
-    (assert (Asignatura ?a (read)))
+    (assert (Asignatura ?r ?a (read)))
 )
 
 ; ---------------------
@@ -157,22 +225,16 @@
     (retract ?c)
 )
 
-(defrule conceptos
+; Lee 1 por 1 el valor de los conceptos
+(defrule leer_concepto
     (declare (salience 9))
-    ?c <- (comienzo_conceptos ?i)
+    ?a <- (Concepto ?r ?nc)
+    (comienzo_conceptos ?i)
     (test (neq ?i no))
     =>
-    (printout t "Redes: ")
-    (assert (Concepto TI Redes (read)))
-    (printout t "Programacion: ")
-    (assert (Concepto IS Programacion (read)))
-    (printout t "Tratamiento de informacion: ")
-    (assert (Concepto SI Informacion (read)))
-    (printout t "Resolucion de problemas: ")
-    (assert (Concepto CSI Problemas (read)))
-    (printout t "Cloud computing: ")
-    (assert (Concepto IC Cloud (read)))
-    (retract ?c)
+    (printout t ?nc ": ")
+    (assert (Concepto ?r ?nc (read)))
+    (retract ?a)
 )
 
 (defrule chequea_conceptos_mal
@@ -189,25 +251,7 @@
 ;   RAZONAMIENTO
 ; --------------------------------------------------------------
 ; El razonamiento segun las caracteristicas vendra por una puntuacion 
-; de semejanza con cada rama
-; Esta es el valor de cada caracteristica con cada rama
-(deffacts puntuacionCaracteristicas
-    (Dificultad CSI 5)
-    (Dificultad IS 3) 
-    (Dificultad IC 4) 
-    (Dificultad SI 3) 
-    (Dificultad TI 2)
-    (Orientacion CSI P)
-    (Orientacion IS P) 
-    (Orientacion IC T)
-    (Orientacion SI T)
-    (Orientacion TI T)
-    (Tipo CSI S)
-    (Tipo IS S) 
-    (Tipo IC H) 
-    (Tipo SI S) 
-    (Tipo TI S)
-)
+; de semejanza con cada rama segun los valores de la base de conocimiento
 
 ; Segun lo escogido calculo los porcentajes de similitud, teniendo en cuenta
 ; Una cosas mas que otras.
