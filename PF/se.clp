@@ -765,14 +765,289 @@
     (retract ?f)
     (printout t crlf crlf "El experto " ?apodo " te aconseja escoger la rama:" crlf ?rama crlf "Ha sido por el siguiente motivo: " crlf ?texto crlf crlf)
     (assert (asignaturas_posibles))
+    (assert (recomendar_asignaturas))
 )
 
 ; -----------------------------------------------------------
-;   ASIGNATURAS POSIBLES PARA UNOS CRÉDITOS
+;   Razonamiento por defecto
 ; -----------------------------------------------------------
 
-(defrule asignaturas_por_coger
-    
-    =>
+(deffacts incertidumbre
+    (Creditos 30)
+    (AS Ingenieria_del_conocimiento 3 T S)
+    (AS Metaheuristicas 4 T S)
+    (AS Modelos_Avanzados_de_Computacion 4 T S)
+    (AS Inteligencia_artificial 3 T S)
+    (AS Sistemas_operativos 4 T S)
+    (AS Cloud_computing 5 P H)
+    (AS Bases_de_datos 3 T S)
+    (AS Infraestructura_Virtual 3 P S)
+    (AS Seguridad 4 P S)
+    (AS Lógica 3 T H)
+    (asumir_orientacion)
+    (asumir_tipo)
+)
 
+; Reglas seguras
+; Las características de la asignatura son las mismas que le gustan
+(defrule asume_orientacion
+    (declare (salience 7))
+    ?a <- (asumir_orientacion)
+    (Orientacion ?o)
+    (test (neq ?o ns))
+    =>
+    (if (eq ?o P) 
+        then
+            (bind ?exp (str-cat "Te gustan las asignaturas mas practicas"))
+        else
+            (bind ?exp (str-cat "Te gustan las asignaturas mas teoricas"))
+    )
+    (assert (explicacion Orientacion ?exp))
+    (retract ?a)
+)
+
+(defrule asume_tipo
+    (declare (salience 7))
+    ?a <- (asumir_tipo)
+    (Tipo ?o)
+    (test (neq ?o ns))
+    =>
+    (if (eq ?o S) 
+        then
+            (bind ?exp (str-cat "Te gustan las asignaturas mas orientadas al software"))
+        else
+            (bind ?exp (str-cat "Te gustan las asignaturas mas orientadas al hardware"))
+    )
+    (assert (explicacion Tipo ?exp))
+    (retract ?a)
+)
+
+; Reglas por defecto
+(defrule orientacion_por_defecto
+    (declare (salience 6))
+    ?a <- (asumir_orientacion)
+    (Orientacion ?o)
+    (test (eq ?o ns))
+    =>
+    (bind ?exp (str-cat "La mayoría de alumnos prefieren asignaturas prácticas."))
+    (assert (explicacion Orientacion ?exp))
+    (assert (Orientacion P))
+    (retract ?a)
+)
+
+(defrule tipo_por_defecto
+    (declare (salience 6))
+    ?a <- (asumir_tipo)
+    (Tipo ?o)
+    (test (eq ?o ns))
+    =>
+    (bind ?exp (str-cat "La mayoría de alumnos prefieren asignaturas relacionadas con el software."))
+    (assert (explicacion Tipo ?exp))
+    (assert (Tipo S))
+    (retract ?a)
+)
+
+; 
+(defrule asume_asignatura
+    (declare (salience 5))
+    ?rc <- (recomendar_asignaturas)
+    ; Para completar creditos
+    ?cr <- (Creditos ?c)
+    (test (> ?c 0))
+    ; Si todo concuerda con lo elegido por el usuario
+    ?a <- (AS ?n ?d ?o ?t)
+    (Dificultad ?dc)
+    (Orientacion ?oc)
+    (Tipo ?tc)
+    (test (or (<= ?d ?dc) (= ?d 0)))
+    (test (eq ?o ?oc))
+    (test (eq ?t ?tc))
+    (explicacion Orientacion ?expO)
+    (explicacion Tipo ?expT)
+    =>
+    (printout t crlf (str-cat "He elegido la asignatura " ?n " por las siguientes razones: ") crlf)
+    (printout t "Estas dispuesto a asumir la dificultad" crlf )
+    (printout t ?expO crlf)
+    (printout t ?expT crlf)
+    (retract ?rc)
+    (retract ?cr)
+    (assert (recomendar_asignaturas))
+    (assert (Creditos (- ?c 6)))
+    (retract ?a)
+)
+
+(defrule asume_asignatura_con_diferente_orientacion
+    (declare (salience 4))
+    ?rc <- (recomendar_asignaturas)
+    ; Para completar creditos
+    ?cr <- (Creditos ?c)
+    (test (> ?c 0))
+    ; Si todo concuerda con lo elegido por el usuario
+    ?a <- (AS ?n ?d ?o ?t)
+    (Dificultad ?dc)
+    (Orientacion ?oc)
+    (Tipo ?tc)
+    (test (or (<= ?d ?dc) (= ?d 0)))
+    (test (neq ?o ?oc))
+    (test (eq ?t ?tc))
+    (explicacion Tipo ?expT)
+    =>
+    (printout t crlf (str-cat "He elegido la asignatura " ?n " por las siguientes razones: ") crlf)
+    (printout t "Estas dispuesto a asumir la dificultad" crlf )
+    (printout t ?expT crlf)
+    (retract ?rc)
+    (retract ?cr)
+    (assert (recomendar_asignaturas))
+    (assert (Creditos (- ?c 6)))
+    (retract ?a)
+)
+
+(defrule asume_asignatura_con_diferente_tipo
+    (declare (salience 4))
+    ?rc <- (recomendar_asignaturas)
+    ; Para completar creditos
+    ?cr <- (Creditos ?c)
+    (test (> ?c 0))
+    ; Si todo concuerda con lo elegido por el usuario
+    ?a <- (AS ?n ?d ?o ?t)
+    (Dificultad ?dc)
+    (Orientacion ?oc)
+    (Tipo ?tc)
+    (test (or (<= ?d ?dc) (= ?d 0)))
+    (test (eq ?o ?oc))
+    (test (neq ?t ?tc))
+    (explicacion Orientacion ?expO)
+    =>
+    (printout t crlf (str-cat "He elegido la asignatura " ?n " por las siguientes razones: ") crlf)
+    (printout t "Estas dispuesto a asumir la dificultad" crlf )
+    (printout t ?expO crlf)
+    (retract ?rc)
+    (retract ?cr)
+    (assert (recomendar_asignaturas))
+    (assert (Creditos (- ?c 6)))
+    (retract ?a)
+)
+
+(defrule asume_asignatura_con_diferente_orientacion_y_tipo
+    (declare (salience 3))
+    ?rc <- (recomendar_asignaturas)
+    ; Para completar creditos
+    ?cr <- (Creditos ?c)
+    (test (> ?c 0))
+    ; Si todo concuerda con lo elegido por el usuario
+    ?a <- (AS ?n ?d ?o ?t)
+    (Dificultad ?dc)
+    (Orientacion ?oc)
+    (Tipo ?tc)
+    (test (or (<= ?d ?dc) (= ?d 0)))
+    (test (neq ?o ?oc))
+    (test (neq ?t ?tc))
+    =>
+    (printout t crlf (str-cat "He elegido la asignatura " ?n " por las siguientes razones: ")crlf)
+    (printout t "Estas dispuesto a asumir la dificultad" crlf )
+    (retract ?rc)
+    (retract ?cr)
+    (assert (recomendar_asignaturas))
+    (assert (Creditos (- ?c 6)))
+    (retract ?a)
+)
+
+(defrule asume_asignatura_mas_dificil
+    (declare (salience 2))
+    ?rc <- (recomendar_asignaturas)
+    ; Para completar creditos
+    ?cr <- (Creditos ?c)
+    (test (> ?c 0))
+    ; Si todo concuerda con lo elegido por el usuario
+    ?a <- (AS ?n ?d ?o ?t)
+    (Dificultad ?dc)
+    (Orientacion ?oc)
+    (Tipo ?tc)
+    (test (> ?d ?dc))
+    (test (eq ?o ?oc))
+    (test (eq ?t ?tc))
+    (explicacion Orientacion ?expO)
+    (explicacion Tipo ?expT)
+    =>
+    (printout t crlf (str-cat "He elegido la asignatura " ?n " por las siguientes razones: ") crlf)
+    (printout t ?expO crlf)
+    (printout t ?expT crlf)
+    (retract ?rc)
+    (retract ?cr)
+    (assert (recomendar_asignaturas))
+    (assert (Creditos (- ?c 6)))
+    (retract ?a)
+)
+
+(defrule asume_asignatura_mayor_dificultad_diferente_orientacion
+    (declare (salience 1))
+    ?rc <- (recomendar_asignaturas)
+    ; Para completar creditos
+    ?cr <- (Creditos ?c)
+    (test (> ?c 0))
+    ; Si todo concuerda con lo elegido por el usuario
+    ?a <- (AS ?n ?d ?o ?t)
+    (Dificultad ?dc)
+    (Orientacion ?oc)
+    (Tipo ?tc)
+    (test (> ?d ?dc))
+    (test (neq ?o ?oc))
+    (test (eq ?t ?tc))
+    (explicacion Tipo ?expT)
+    =>
+    (printout t crlf (str-cat "He elegido la asignatura " ?n " por las siguientes razones: ") crlf)
+    (printout t ?expT crlf)
+    (retract ?rc)
+    (retract ?cr)
+    (assert (recomendar_asignaturas))
+    (assert (Creditos (- ?c 6)))
+    (retract ?a)
+)
+
+(defrule asume_asignatura_mayor_dificultad_diferente_tipo
+    (declare (salience 1))
+    ?rc <- (recomendar_asignaturas)
+    ; Para completar creditos
+    ?cr <- (Creditos ?c)
+    (test (> ?c 0))
+    ; Si todo concuerda con lo elegido por el usuario
+    ?a <- (AS ?n ?d ?o ?t)
+    (Dificultad ?dc)
+    (Orientacion ?oc)
+    (Tipo ?tc)
+    (test (> ?d ?dc))
+    (test (eq ?o ?oc))
+    (test (neq ?t ?tc))
+    (explicacion Orientacion ?expO)
+    =>
+    (printout t crlf (str-cat "He elegido la asignatura " ?n " por las siguientes razones: ") crlf)
+    (printout t ?expO crlf)
+    (retract ?rc)
+    (retract ?cr)
+    (assert (recomendar_asignaturas))
+    (assert (Creditos (- ?c 6)))
+    (retract ?a)
+)
+
+(defrule asume_asignatura_mayor_dificultad_diferente_orientacion_y_tipo
+    (declare (salience 0))
+    ?rc <- (recomendar_asignaturas)
+    ; Para completar creditos
+    ?cr <- (Creditos ?c)
+    (test (> ?c 0))
+    ; Si todo concuerda con lo elegido por el usuario
+    ?a <- (AS ?n ?d ?o ?t)
+    (Dificultad ?dc)
+    (Orientacion ?oc)
+    (Tipo ?tc)
+    (test (> ?d ?dc))
+    (test (neq ?o ?oc))
+    (test (neq ?t ?tc))
+    =>
+    (printout t crlf (str-cat "He elegido la asignatura " ?n " por las siguientes razones: ") crlf)
+    (retract ?rc)
+    (retract ?cr)
+    (assert (recomendar_asignaturas))
+    (assert (Creditos (- ?c 6)))
+    (retract ?a)
 )
