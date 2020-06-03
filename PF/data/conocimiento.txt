@@ -17,11 +17,11 @@ Orientacion IC T
 Orientacion SI T
 Orientacion TI T
 
-Tipo CSI S
-Tipo IS S 
-Tipo IC H 
-Tipo SI S 
-Tipo TI S
+Tipo CSI S A
+Tipo IS S D
+Tipo IC H E
+Tipo SI S D
+Tipo TI H T
 
 Asignatura SI Estructuras_de_datos
 Asignatura SI Fundamentos_de_bases_de_datos

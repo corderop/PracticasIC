@@ -55,7 +55,8 @@
         (if (eq ?valor Tipo) then
             (bind ?v1 (read file))
             (bind ?v2 (read file))
-            (assert (Tipo ?v1 ?v2))
+            (bind ?v3 (read file))
+            (assert (Tipo ?v1 ?v2 ?v3))
         )
         ; Aquí se obtendrá el porcentaje que se le dará a cada apartado
         ; según tenga más o menos importacia
@@ -353,6 +354,10 @@
 ; ----------------------------------------
 ; Incentidumbre
 
+(deffacts ince
+    (modulo incertidumbre)
+)
+
 ; Reglas seguras
 ; Las características de la asignatura son las mismas que le gustan
 (defrule asume_orientacion
@@ -603,46 +608,37 @@
 (defrule porcentaje_tipo
     (not (tipo_check))
     (Porcentaje_Tipo ?per)
-    (Tipo ?i)
-    (Tipo CSI ?a)
-    (Tipo IS ?b) 
-    (Tipo IC ?c)
-    (Tipo SI ?d)
-    (Tipo TI ?e)
+    (Tipo ?i1 ?i2)
+    (Tipo CSI ?a1 ?a2)
+    (Tipo IS ?b1 ?b2) 
+    (Tipo IC ?c1 ?c2)
+    (Tipo SI ?d1 ?d2)
+    (Tipo TI ?e1 ?e2)
     ?r1 <- (Rama Computacion_y_Sistemas_Inteligentes CSI ?csi)
     ?r2 <- (Rama Ingenieria_del_Software IS ?is)
     ?r3 <- (Rama Ingenieria_de_Computadores IC ?ic)
     ?r4 <- (Rama Sistemas_de_Informacion SI ?si)
     ?r5 <- (Rama Tecnologias_de_la_Informacion TI ?ti)
     =>
-    (if(neq ?i ns)
+    (if (and (eq ?a1 ?i1) (eq ?a2 ?i2))
         then
-        (if(eq ?a ?i)
-            then
-                (bind ?csi (+ ?csi ?per) )
-        )
-        (if(eq ?b ?i)
-            then
-                (bind ?is (+ ?is ?per) )
-        )
-        (if(eq ?c ?i)
-            then
-                (bind ?ic (+ ?ic ?per) )
-        )
-        (if(eq ?d ?i)
-            then
-                (bind ?si (+ ?si ?per) )
-        )
-        (if(eq ?e ?i)
-            then
-                (bind ?ti (+ ?ti ?per) )
-        )
-    else
-        (bind ?csi (+ ?csi ?per))
-        (bind ?is (+ ?is ?per))
-        (bind ?ic (+ ?ic ?per))
-        (bind ?si (+ ?si ?per))
-        (bind ?ti (+ ?ti ?per))
+            (bind ?csi (+ ?csi ?per) )
+    )
+    (if (and (eq ?b1 ?i1) (eq ?b2 ?i2))
+        then
+            (bind ?is (+ ?is ?per) )
+    )
+    (if (and (eq ?c1 ?i1) (eq ?c2 ?i2))
+        then
+            (bind ?ic (+ ?ic ?per) )
+    )
+    (if (and (eq ?d1 ?i1) (eq ?d2 ?i2))
+        then
+            (bind ?si (+ ?si ?per) )
+    )
+    (if (and (eq ?e1 ?i1) (eq ?e2 ?i2))
+        then
+            (bind ?ti (+ ?ti ?per) )
     )
     (retract ?r1 ?r2 ?r3 ?r4 ?r5)
     (assert (Rama Computacion_y_Sistemas_Inteligentes CSI ?csi))
@@ -842,23 +838,14 @@
     (declare (salience -52))
     ; Si se ha tomado nota de ka orientacion
     (orientacion_check)
+    (explicacion Orientacion ?e)
     (Rama_mayor ?R)
     (Orientacion ?R ?dr)
     ?a <- (Orientacion ?d)
     ?b <- (Razonamiento ?texto)
     =>
     (if(eq ?d ?dr) then
-        (if (eq ?dr T) then
-            (bind ?texto (str-cat ?texto "La orientacion es mas teorica. "))
-        else
-            (bind ?texto (str-cat ?texto "La orientacion es mas practica. "))
-        )
-    else
-        (if (eq ?dr T) then
-            (bind ?texto (str-cat ?texto "Tendra un contenido mas teorico pero facilmente sobrellevable segun tus gustos. "))
-        else
-            (bind ?texto (str-cat ?texto "Tendra un contenido mas practico pero facilmente sobrellevable segun tus gustos. "))
-        )
+        (bind ?texto (str-cat ?texto ?e ". "))
     )
     (retract ?a ?b)
     (assert (Razonamiento ?texto))
@@ -869,23 +856,14 @@
     (declare (salience -53))
     ; Si se ha tomado nota del tipo
     (tipo_check)
+    (explicacion Tipo ?e)
     (Rama_mayor ?R)
-    (Tipo ?R ?dr)
-    ?a <- (Tipo ?d)
+    (Tipo ?R ?dr1 ?dr2)
+    ?a <- (Tipo ?i1 ?i2)
     ?b <- (Razonamiento ?texto)
     =>
-    (if(eq ?d ?dr) then
-        (if (eq ?dr S) then 
-            (bind ?texto (str-cat ?texto "Tratara mas el software como es de tu preferencia. "))
-        else
-            (bind ?texto (str-cat ?texto "Tratara mas el hardware como es de tu preferencia. "))
-        )
-    else
-        (if (eq ?dr S) then
-            (bind ?texto (str-cat ?texto "Tratara mas el software pero seguramente de una forma diferente a la que piensas."))
-        else
-            (bind ?texto (str-cat ?texto "Tratara mas el hard pero seguramente de una forma diferente a la que piensas."))
-        )
+    (if (and (eq ?dr1 ?i1) (eq ?dr2 ?i2)) then
+        (bind ?texto (str-cat ?texto ?e ". "))
     )
     (retract ?a ?b)
     (assert (Razonamiento ?texto))
@@ -900,7 +878,7 @@
     ?a <- (Asignaturas ?R ?d)
     ?b <- (Razonamiento ?texto)
     =>
-    (if(> ?d 60) then
+    (if(> ?d 50) then
         (bind ?texto (str-cat ?texto "Asignaturas que te han gustado me hacen decantarme por esta eleccion."))
     else
         (bind ?texto (str-cat ?texto "Algunas asignaturas similares no han sido de preferencia, pero algunas otras si"))
@@ -917,7 +895,7 @@
     ?a <- (Concepto ?R ?nombre ?d)
     ?b <- (Razonamiento ?texto)
     =>
-    (if(> ?d 60) then
+    (if(> ?d 50) then
         (if(eq ?nombre Redes) then
             (bind ?texto (str-cat ?texto "Las redes es algo interesante para ti y esta relacionado con esta rama."))
         )
@@ -975,21 +953,21 @@
 )
 
 ; -----------------------------------------------------------
-;   Razonamiento por defecto
+;   Razonamiento asignaturas
 ; -----------------------------------------------------------
 
 (deffacts incertidumbre
     (Creditos 30)
-    (AS Ingenieria_del_conocimiento 3 T S)
-    (AS Metaheuristicas 4 T S)
-    (AS Modelos_Avanzados_de_Computacion 4 T S)
-    (AS Inteligencia_artificial 3 T S)
-    (AS Sistemas_operativos 4 T S)
-    (AS Cloud_computing 5 P H)
-    (AS Bases_de_datos 3 T S)
-    (AS Infraestructura_Virtual 3 P S)
-    (AS Seguridad 4 P S)
-    (AS Lógica 3 T H)
+    (AS Ingenieria_del_conocimiento 3 T S A)
+    (AS Metaheuristicas 4 T S A)
+    (AS Modelos_Avanzados_de_Computacion 4 T S A)
+    (AS Inteligencia_artificial 3 T S A)
+    (AS Sistemas_operativos 4 T S D)
+    (AS Cloud_computing 5 P H T)
+    (AS Bases_de_datos 3 T S D)
+    (AS Infraestructura_Virtual 3 P S D)
+    (AS Seguridad 4 P S D)
+    (AS Lógica 3 T H E)
     (asumir_orientacion)
     (asumir_tipo)
 )
