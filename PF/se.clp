@@ -156,13 +156,16 @@
     ; Ha introducido el punto previo
     (Orientacion ?i)
     (test (or (eq ?i T) (eq ?i P) (eq ?i ns) ))
+    (not (Tipo ?))
     =>
     (printout t crlf "Aunque algunas de las ramas estudien ambos campos complementados, es facil diferencias algunas asignaturas" crlf "segun si estan mas orientadas al software o al hardware" crlf "Introduce 'H' si te gusta mas estudiar sobre hardware y 'S' si prefieres hacerlo sobre software." crlf "Si no es algo que te importe, introduce 'ns': ")
     (assert (Tipo (read)))
+    (assert (preguntar_asignaturas))
 )
 
 ; Comprueba que el tipo introducido sea correcto
 (defrule check_tipo
+    (declare (salience 2))
     ; Ha introducido el punto previo
     ?d <- (Tipo ?i)
     (test (not (or (eq ?i S) (eq ?i H) (eq ?i ns) )))
@@ -179,12 +182,11 @@
 ; 
 (defrule previo_asignaturas
     ; Ha introducido el punto previo
-    (Tipo ?i)
-    (test (or (eq ?i S) (eq ?i H) (eq ?i ns) ))
+    (preguntar_asignaturas)
     =>
     (printout t crlf "Ahora te voy a presentar una serie de asignaturas. Te voy a pedir que las puntues de 0 al 100 segun" crlf "te hayan gustado" crlf "Si no quieres realizar este test introduce 'no'." crlf "Si quieres realizarlo introduce 'si' o cualquier otra cosa: ")
-    (assert (comienzo_asignaturas (read))) 
-    (assert (conceptos))
+    (assert (comienzo_asignaturas (read)))
+    (assert (preguntar_conceptos))
 )
 
 ; Lee 1 por 1 el valor de la asignatura
@@ -218,7 +220,7 @@
 
 (defrule previo_conceptos
     ; Ha introducido el punto previo
-    ?c <- (conceptos)
+    ?c <- (preguntar_conceptos)
     =>
     (printout t crlf "Por ultimo te voy a presentar una serie de conceptos relacionados con las ramas." crlf " Te voy a pedir que las puntues de 0 al 100 segun tu preferencia" crlf "Si no quieres realizar este test introduce 'no'." crlf "Si quieres realizarlo introduce 'si' o cualquier otra cosa: ")
     (assert (comienzo_conceptos (read))) 
