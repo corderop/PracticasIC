@@ -121,6 +121,7 @@
 (defrule check_dificultad
     ?d <- (Dificultad ?i)
     (test (and (or (< ?i 1) (> ?i 5) ) (neq ?i 0)))
+    (not (Dificultad ?))
     =>
     (printout t "La dificultad introducida no esta en el rango correcto (1...5 o 0)" crlf)
     (retract ?d)
@@ -133,6 +134,7 @@
     ; Ha introducido el punto previo
     (Dificultad ?i)
     (test (or (and (>= ?i 1) (<= ?i 5) ) (eq ?i 0)))
+    (not (Orientacion ?))
     =>
     (printout t crlf "En la mayoria de asignaturas hay una parte teorica y otra practica." crlf "Algunos alumnos prefieren estudiar mas contenidos teoricos y algunos otros contenidos mas practicos." crlf "Introduce 'T' para teoria o 'P' para practicas segun tu preferencia." crlf "Si no es algo que te importe, introduce 'ns': ")
     (assert (Orientacion (read)))
