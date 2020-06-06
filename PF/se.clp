@@ -139,13 +139,33 @@
             (assert (modulo ramas))
         else
             (assert (modulo asignaturas))
+            (assert (preguntar_curso))
     )
     (assert (preguntar_dificultad))
 )
 
-; Indica que se inicie la obtencion de informacion
-; (deffacts Inicio
-;     (inicio))
+(defrule pregunta_curso
+    (declare (salience 930))
+    ?m <- (preguntar_curso)
+    (not (curso ?))
+    =>
+    (retract ?m)
+    (printout t crlf "¿De qué curso quieres las asignaturas?" crlf "3) Tercero" crlf "4) Cuarto" crlf "0) Ambos" crlf "Introduce 3, 4 o 0: ")
+    (assert (eleccion_curso (read)))
+)
+
+(defrule mal_eleccion_curso
+    (declare (salience 920))
+    ?m <- (eleccion_curso ?i)
+    (test (and (neq ?i 3) (neq ?i 4) (neq ?i 0) ))
+    =>
+    (printout t crlf "Curso mal introducido. Introduce uno válido: ")
+    (assert (eleccion_curso (read)))
+)
+
+; -------------------------------------------------------------
+; PREGUNTAS
+; -------------------------------------------------------------
 
 ; Pregunta y chequea por la primera caracteristica (Dificultad)
 (defrule introduce_dificultad
@@ -976,16 +996,59 @@
 
 (deffacts incertidumbre
     (Creditos 30)
-    (AS Ingenieria_del_conocimiento 3 T S A)
-    (AS Metaheuristicas 4 T S A)
-    (AS Modelos_Avanzados_de_Computacion 4 T S A)
-    (AS Inteligencia_artificial 3 T S A)
-    (AS Sistemas_operativos 4 T S D)
-    (AS Cloud_computing 5 P H T)
-    (AS Bases_de_datos 3 T S D)
-    (AS Infraestructura_Virtual 3 P S D)
-    (AS Seguridad 4 P S D)
-    (AS Lógica 3 T H E)
+    ; Tercero
+    (AS 3 Aprendizaje_automatico 5 T S A)
+    (AS 3 Metaheuristicas 3 P S A)
+    (AS 3 Modelos_Avanzados_de_Computacion 4 T S A)
+    (AS 3 Tecnicas_de_sistemas_Inteligentes 3 P S A)
+    (AS 3 Ingenieria_del_conocimiento 3 T S A)
+
+    (AS 3 Desarrollo_de_sistemas_distribuidos 4 T S D)
+    (AS 3 Desarrollo_de_software 4 P S D)
+    (AS 3 Diseno_de_interfaces_de_usuario 2 T S D)
+    (AS 3 Sistemas_de_informacion_basados_en_web 3 P S D)
+    (AS 3 Sistemas_graficos 4 P S D)
+    
+    (AS 3 Arquitectura_de_Sistemas 4 T S D)
+    (AS 3 Arquitectura_y_Computacion_de_altas_prestaciones 4 T H E)
+    (AS 3 Desarrollo_de_hardware_digital 3 P H E)
+    (AS 3 Diseno_de_sistemas_electronicos 3 P H E)
+    (AS 3 Sistemas_con_microprocesadores 5 T H E)
+
+    (AS 3 Computacion_ubicua_e_inteligencia_ambiental 3 T H T)
+    (AS 3 Servidores_web_de_altas_prestaciones 3 P H T)
+    (AS 3 Sistemas_multimedia 3 P S D)
+    (AS 3 Tecnologias_web 2 P S D)
+    (AS 3 Transmision_de_datos_y_redes_de_computadores 4 T H T)
+
+    (AS 3 Administracion_de_bases_de_datos 4 T S D)
+    (AS 3 Ingenieria_de_sistemas_de_informacion 4 T S D)
+    (AS 3 Programacion_web 2 P S D)
+    (AS 3 Sistemas_de_informacion_para_empresas 3 T S D)
+    (AS 3 Sistemas_multidimensionales 4 T H T)
+
+    ; Cuarto
+
+    (AS 4 Nuevos_paradigmas_de_Interaccion 4 P S A)
+    (AS 4 Procesadores_de_lenguajes 4 T S A)
+    (AS 4 Vision_por_computador 5 T S A)
+    
+    (AS 4 Direccion_y_gestion_de_proyectos 3 P S D)
+    (AS 4 Metodologias_de_desarrollo_agiles 3 P S D)
+    (AS 4 Desarrollo_basado_en_agentes 4 P S A)
+
+    (AS 4 Centro_de_procesamiento_de_datos 4 T H T)
+    (AS 4 Sistemas_empotrados 3 P H E)
+    (AS 4 Tecnologias_de_red 5 T H T)
+
+    (AS 4 Desarrollo_de_aplicaciones_para_internet 4 P S D)
+    (AS 4 Infraestructura_virtual 3 P S D)
+    (AS 4 Seguridad_y_proteccion_de_sistemas_informaticos 5 P S A)
+
+    (AS 4 Bases_de_datos_distribuidas 4 P S D)
+    (AS 4 Inteligencia_de_negocio 3 P S A)
+    (AS 4 Recuperacion_de_la_informacion 4 T H E)
+
     (asumir_orientacion)
     (asumir_tipo)
 )
