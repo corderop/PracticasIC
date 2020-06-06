@@ -485,6 +485,7 @@
 ; Calcula el porcentaje de la dificultad
 (defrule porcentaje_dificultad
     (not (dificultad_check))
+    (modulo ramas)
     (Porcentaje_Dificultad ?per)
     (Dificultad ?i)
     (Dificultad CSI ?a)
@@ -551,6 +552,7 @@
 ; Si la orientacion del usuario es la misma que la de la rama se suma el %
 ; Si no 0%
 (defrule porcentaje_orientacion
+    (modulo ramas)
     (not (orientacion_check))
     (Porcentaje_Orientacion ?per)
     (Orientacion ?i)
@@ -606,6 +608,7 @@
 ; Si el tipo del usuario es el mismo que la de la rama se suma el %
 ; Si no 0%
 (defrule porcentaje_tipo
+    (modulo ramas)
     (not (tipo_check))
     (Porcentaje_Tipo ?per)
     (Tipo ?i1 ?i2)
@@ -660,6 +663,7 @@
 ; Calcula los porcentajes de las asignatura segun la media de asignaturas parecedas por las que se le ha preguntado
 (defrule porcentaje_asignaturas_IS
     (declare (salience 1))
+    (modulo ramas)
     ?f <- (Asignatura IS ?asig ?i)
     ?f2 <- (Asignaturas IS ?p)
     =>
@@ -671,6 +675,7 @@
 
 (defrule porcentaje_asignaturas_CSI
     (declare (salience 1))
+    (modulo ramas)
     ?f <- (Asignatura CSI ?asig ?i)
     ?f2 <- (Asignaturas CSI ?p)
     =>
@@ -682,6 +687,7 @@
 
 (defrule porcentaje_asignaturas_IC
     (declare (salience 1))
+    (modulo ramas)
     ?f <- (Asignatura IC ?asig ?i)
     ?f2 <- (Asignaturas IC ?p)
     =>
@@ -693,6 +699,7 @@
 
 (defrule porcentaje_asignaturas_TI
     (declare (salience 1))
+    (modulo ramas)
     ?f <- (Asignatura TI ?asig ?i)
     ?f2 <- (Asignaturas TI ?p)
     =>
@@ -704,6 +711,7 @@
 
 (defrule porcentaje_asignaturas_SI
     (declare (salience 1))
+    (modulo ramas)
     ?f <- (Asignatura SI ?asig ?i)
     ?f2 <- (Asignaturas SI ?p)
     =>
@@ -716,6 +724,7 @@
 ; Añade al total el porcentaje de la asignaturas
 (defrule aniado_por_asig
     (declare (salience -1))
+    (modulo ramas)
     (not (asignaturas_check))
     (comienzo_asignaturas ?a)
     (Porcentaje_Asignaturas ?per)
@@ -748,11 +757,12 @@
 ; Añade al global segun lo seleccionado en los conceptos
 (defrule aniado_por_concepto
     (not (concepto_check))
+    (modulo ramas)
     (Porcentaje_Conceptos ?per)
-    (Concepto CSI Problemas ?csi1)
+    (Concepto CSI Resolucion_de_problemas ?csi1)
     (Concepto IS Programacion ?is1)
-    (Concepto IC Cloud ?ic1)
-    (Concepto SI Informacion ?si1)
+    (Concepto IC Cloud_computing ?ic1)
+    (Concepto SI Tratamiento_de_la_informacion ?si1)
     (Concepto TI Redes ?ti1)
     ?r1 <- (Rama Computacion_y_Sistemas_Inteligentes CSI ?csi)
     ?r2 <- (Rama Ingenieria_del_Software IS ?is)
@@ -777,6 +787,7 @@
 ; En funcion de los calculo toma la decision de una rama
 (defrule coger_mayor
     (declare (salience -50))
+    (modulo ramas)
     ?f1 <- (Rama ?R1 ?r1 ?v1)
     ?f2 <- (Rama ?R2 ?r2 ?v2)
     ?f3 <- (Rama ?R3 ?r3 ?v3)
@@ -817,6 +828,7 @@
 ; Produce el consejo segun la dificultad elegida por el usuario
 (defrule consejo_dificultad
     (declare (salience -51))
+    (modulo ramas)
     ; Si se ha tomado nota de la dificultad
     (dificultad_check)
     (Rama_mayor ?R)
@@ -836,6 +848,7 @@
 ; Produce el consejo segun la orientacion elegida por el usuario
 (defrule consejo_orientacion
     (declare (salience -52))
+    (modulo ramas)
     ; Si se ha tomado nota de ka orientacion
     (orientacion_check)
     (explicacion Orientacion ?e)
@@ -854,6 +867,7 @@
 ; Produce el consejo segun el tipo elegido por el usuario
 (defrule consejo_tipo
     (declare (salience -53))
+    (modulo ramas)
     ; Si se ha tomado nota del tipo
     (tipo_check)
     (explicacion Tipo ?e)
@@ -872,6 +886,7 @@
 ; Produce el consejo segun las asignaturas elegidas por el usuario
 (defrule consejo_asignaturas
     (declare (salience -54))
+    (modulo ramas)
     ; Si se ha tomado nota de la asignaturas
     (asignaturas_check)
     (Rama_mayor ?R)
@@ -889,6 +904,7 @@
 
 (defrule consejo_conceptos
     (declare (salience -55))
+    (modulo ramas)
     ; Si se ha tomado nota de los conceptos
     (concepto_check)
     (Rama_mayor ?R)
@@ -935,6 +951,7 @@
 ; Recopilados todos los consejos lo pone en un vector para imprimirlo añadiendo la rama y el experto
 (defrule hacer_consejo
     (declare (salience -56))
+    (modulo ramas)
     ?b <- (Rama_consejo ?R)
     ?a <- (Razonamiento ?texto)
     =>
@@ -944,6 +961,7 @@
 
 ; Cuando se obtienen un consejo se imprime con el lenguaje apropiadoS
 (defrule imprimir_consejo
+    (modulo ramas)
     ?f <- (Consejo ?rama ?texto ?apodo)
     =>
     (retract ?f)
@@ -953,7 +971,7 @@
 )
 
 ; -----------------------------------------------------------
-;   Razonamiento asignaturas
+;   Razonamiento asignaturas (MODULO ASIGNATURAS)
 ; -----------------------------------------------------------
 
 (deffacts incertidumbre
@@ -974,18 +992,19 @@
 
 (defrule asume_asignatura
     (declare (salience 5))
-    ?rc <- (recomendar_asignaturas)
+    (modulo asignaturas)
+    ; ?rc <- (recomendar_asignaturas)
     ; Para completar creditos
     ?cr <- (Creditos ?c)
     (test (> ?c 0))
     ; Si todo concuerda con lo elegido por el usuario
-    ?a <- (AS ?n ?d ?o ?t)
+    ?a <- (AS ?n ?d ?o ?t1 ?t2)
     (Dificultad ?dc)
     (Orientacion ?oc)
-    (Tipo ?tc)
+    (Tipo ?tc1 ?tc2)
     (test (or (<= ?d ?dc) (= ?d 0)))
     (test (eq ?o ?oc))
-    (test (eq ?t ?tc))
+    (test (and (eq ?t1 ?tc1) (eq ?t2 ?tc2)))
     (explicacion Orientacion ?expO)
     (explicacion Tipo ?expT)
     =>
@@ -993,185 +1012,192 @@
     (printout t "Estas dispuesto a asumir la dificultad" crlf )
     (printout t ?expO crlf)
     (printout t ?expT crlf)
-    (retract ?rc)
+    ; (retract ?rc)
     (retract ?cr)
-    (assert (recomendar_asignaturas))
+    ; (assert (recomendar_asignaturas))
     (assert (Creditos (- ?c 6)))
     (retract ?a)
 )
 
 (defrule asume_asignatura_con_diferente_orientacion
     (declare (salience 4))
-    ?rc <- (recomendar_asignaturas)
+    (modulo asignaturas)
+    ; ?rc <- (recomendar_asignaturas)
     ; Para completar creditos
     ?cr <- (Creditos ?c)
     (test (> ?c 0))
     ; Si todo concuerda con lo elegido por el usuario
-    ?a <- (AS ?n ?d ?o ?t)
+    ?a <- (AS ?n ?d ?o ?t1 ?t2)
     (Dificultad ?dc)
     (Orientacion ?oc)
-    (Tipo ?tc)
+    (Tipo ?tc1 ?tc2)
     (test (or (<= ?d ?dc) (= ?d 0)))
     (test (neq ?o ?oc))
-    (test (eq ?t ?tc))
+    (test (and (eq ?t1 ?tc1) (eq ?t2 ?tc2)))
     (explicacion Tipo ?expT)
     =>
     (printout t crlf (str-cat "He elegido la asignatura " ?n " por las siguientes razones: ") crlf)
     (printout t "Estas dispuesto a asumir la dificultad" crlf )
     (printout t ?expT crlf)
-    (retract ?rc)
+    ; (retract ?rc)
     (retract ?cr)
-    (assert (recomendar_asignaturas))
+    ; (assert (recomendar_asignaturas))
     (assert (Creditos (- ?c 6)))
     (retract ?a)
 )
 
 (defrule asume_asignatura_con_diferente_tipo
     (declare (salience 4))
-    ?rc <- (recomendar_asignaturas)
+    (modulo asignaturas)
+    ; ?rc <- (recomendar_asignaturas)
     ; Para completar creditos
     ?cr <- (Creditos ?c)
     (test (> ?c 0))
     ; Si todo concuerda con lo elegido por el usuario
-    ?a <- (AS ?n ?d ?o ?t)
+    ?a <- (AS ?n ?d ?o ?t1 ?t2)
     (Dificultad ?dc)
     (Orientacion ?oc)
-    (Tipo ?tc)
+    (Tipo ?tc1 ?tc2)
     (test (or (<= ?d ?dc) (= ?d 0)))
     (test (eq ?o ?oc))
-    (test (neq ?t ?tc))
+    (test (neq ?t2 ?tc2))
     (explicacion Orientacion ?expO)
     =>
     (printout t crlf (str-cat "He elegido la asignatura " ?n " por las siguientes razones: ") crlf)
     (printout t "Estas dispuesto a asumir la dificultad" crlf )
     (printout t ?expO crlf)
-    (retract ?rc)
+    ; (retract ?rc)
     (retract ?cr)
-    (assert (recomendar_asignaturas))
+    ; (assert (recomendar_asignaturas))
     (assert (Creditos (- ?c 6)))
     (retract ?a)
 )
 
 (defrule asume_asignatura_con_diferente_orientacion_y_tipo
     (declare (salience 3))
-    ?rc <- (recomendar_asignaturas)
+    (modulo asignaturas)
+    ; ?rc <- (recomendar_asignaturas)
     ; Para completar creditos
     ?cr <- (Creditos ?c)
     (test (> ?c 0))
     ; Si todo concuerda con lo elegido por el usuario
-    ?a <- (AS ?n ?d ?o ?t)
+    ?a <- (AS ?n ?d ?o ?t1 ?t2)
     (Dificultad ?dc)
     (Orientacion ?oc)
-    (Tipo ?tc)
+    (Tipo ?tc1 ?tc2)
     (test (or (<= ?d ?dc) (= ?d 0)))
     (test (neq ?o ?oc))
-    (test (neq ?t ?tc))
+    (test (neq ?t2 ?tc2))
     =>
     (printout t crlf (str-cat "He elegido la asignatura " ?n " por las siguientes razones: ")crlf)
     (printout t "Estas dispuesto a asumir la dificultad" crlf )
-    (retract ?rc)
+    ; (retract ?rc)
     (retract ?cr)
-    (assert (recomendar_asignaturas))
+    ; (assert (recomendar_asignaturas))
     (assert (Creditos (- ?c 6)))
     (retract ?a)
 )
 
 (defrule asume_asignatura_mas_dificil
     (declare (salience 2))
-    ?rc <- (recomendar_asignaturas)
+    (modulo asignaturas)
+    ; ?rc <- (recomendar_asignaturas)
     ; Para completar creditos
     ?cr <- (Creditos ?c)
     (test (> ?c 0))
     ; Si todo concuerda con lo elegido por el usuario
-    ?a <- (AS ?n ?d ?o ?t)
+    ?a <- (AS ?n ?d ?o ?t1 ?t2)
     (Dificultad ?dc)
     (Orientacion ?oc)
-    (Tipo ?tc)
+    (Tipo ?tc1 ?tc2)
     (test (> ?d ?dc))
     (test (eq ?o ?oc))
-    (test (eq ?t ?tc))
+    (test (and (eq ?t1 ?tc1) (eq ?t2 ?tc2)))
     (explicacion Orientacion ?expO)
     (explicacion Tipo ?expT)
     =>
     (printout t crlf (str-cat "He elegido la asignatura " ?n " por las siguientes razones: ") crlf)
     (printout t ?expO crlf)
     (printout t ?expT crlf)
-    (retract ?rc)
+    ; (retract ?rc)
     (retract ?cr)
-    (assert (recomendar_asignaturas))
+    ; (assert (recomendar_asignaturas))
     (assert (Creditos (- ?c 6)))
     (retract ?a)
 )
 
 (defrule asume_asignatura_mayor_dificultad_diferente_orientacion
     (declare (salience 1))
-    ?rc <- (recomendar_asignaturas)
+    (modulo asignaturas)
+    ; ?rc <- (recomendar_asignaturas)
     ; Para completar creditos
     ?cr <- (Creditos ?c)
     (test (> ?c 0))
     ; Si todo concuerda con lo elegido por el usuario
-    ?a <- (AS ?n ?d ?o ?t)
+    ?a <- (AS ?n ?d ?o ?t1 ?t2)
     (Dificultad ?dc)
     (Orientacion ?oc)
-    (Tipo ?tc)
+    (Tipo ?tc1 ?tc2)
     (test (> ?d ?dc))
     (test (neq ?o ?oc))
-    (test (eq ?t ?tc))
+    (test (and (eq ?t1 ?tc1) (eq ?t2 ?tc2)))
     (explicacion Tipo ?expT)
     =>
     (printout t crlf (str-cat "He elegido la asignatura " ?n " por las siguientes razones: ") crlf)
     (printout t ?expT crlf)
-    (retract ?rc)
+    ; (retract ?rc)
     (retract ?cr)
-    (assert (recomendar_asignaturas))
+    ; (assert (recomendar_asignaturas))
     (assert (Creditos (- ?c 6)))
     (retract ?a)
 )
 
 (defrule asume_asignatura_mayor_dificultad_diferente_tipo
     (declare (salience 1))
-    ?rc <- (recomendar_asignaturas)
+    (modulo asignaturas)
+    ; ?rc <- (recomendar_asignaturas)
     ; Para completar creditos
     ?cr <- (Creditos ?c)
     (test (> ?c 0))
     ; Si todo concuerda con lo elegido por el usuario
-    ?a <- (AS ?n ?d ?o ?t)
+    ?a <- (AS ?n ?d ?o ?t1 ?t2)
     (Dificultad ?dc)
     (Orientacion ?oc)
-    (Tipo ?tc)
+    (Tipo ?tc1 ?tc2)
     (test (> ?d ?dc))
     (test (eq ?o ?oc))
-    (test (neq ?t ?tc))
+    (test (neq ?t2 ?tc2))
     (explicacion Orientacion ?expO)
     =>
     (printout t crlf (str-cat "He elegido la asignatura " ?n " por las siguientes razones: ") crlf)
     (printout t ?expO crlf)
-    (retract ?rc)
+    ; (retract ?rc)
     (retract ?cr)
-    (assert (recomendar_asignaturas))
+    ; (assert (recomendar_asignaturas))
     (assert (Creditos (- ?c 6)))
     (retract ?a)
 )
 
 (defrule asume_asignatura_mayor_dificultad_diferente_orientacion_y_tipo
     (declare (salience 0))
-    ?rc <- (recomendar_asignaturas)
+    (modulo asignaturas)
+    ; ?rc <- (recomendar_asignaturas)
     ; Para completar creditos
     ?cr <- (Creditos ?c)
     (test (> ?c 0))
     ; Si todo concuerda con lo elegido por el usuario
-    ?a <- (AS ?n ?d ?o ?t)
+    ?a <- (AS ?n ?d ?o ?t1 ?t2)
     (Dificultad ?dc)
     (Orientacion ?oc)
-    (Tipo ?tc)
+    (Tipo ?tc1 ?tc2)
     (test (> ?d ?dc))
     (test (neq ?o ?oc))
-    (test (neq ?t ?tc))
+    (test (neq ?t2 ?tc2))
     =>
     (printout t crlf (str-cat "He elegido la asignatura " ?n " por las siguientes razones: ") crlf)
-    (retract ?rc)
+    ; (retract ?rc)
     (retract ?cr)
-    (assert (recomendar_asignaturas))
+    ; (assert (recomendar_asignaturas))
     (assert (Creditos (- ?c 6)))
     (retract ?a)
 )
