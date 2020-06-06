@@ -158,10 +158,10 @@
 (defrule mal_eleccion_creditos
     (declare (salience 920))
     ?m <- (Creditos ?i)
-    (test (or (<= ?i 0) (> ?i 60)))
+    (test (or (< ?i 0) (> ?i 60)))
     =>
     (printout t crlf "Los créditos deben estar entre 0 y 60. Introducelos de nuevo: ")
-    (assert (eleccion_curso (read)))
+    (assert (Creditos (read)))
 )
 
 (defrule pregunta_curso
