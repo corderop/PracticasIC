@@ -140,8 +140,28 @@
         else
             (assert (modulo asignaturas))
             (assert (preguntar_curso))
+            (assert (preguntar_creditos))
     )
     (assert (preguntar_dificultad))
+)
+
+(defrule pregunta_creditos
+    (declare (salience 930))
+    ?m <- (preguntar_creditos)
+    (not (Creditos ?))
+    =>
+    (retract ?m)
+    (printout t crlf "¿Cuantos creditos quieres cursar?: ")
+    (assert (Creditos (read)))
+)
+
+(defrule mal_eleccion_creditos
+    (declare (salience 920))
+    ?m <- (Creditos ?i)
+    (test (or (<= ?i 0) (> ?i 60)))
+    =>
+    (printout t crlf "Los créditos deben estar entre 0 y 60. Introducelos de nuevo: ")
+    (assert (eleccion_curso (read)))
 )
 
 (defrule pregunta_curso
@@ -995,7 +1015,6 @@
 ; -----------------------------------------------------------
 
 (deffacts incertidumbre
-    (Creditos 30)
     ; Tercero
     (AS 3 Aprendizaje_automatico 5 T S A)
     (AS 3 Metaheuristicas 3 P S A)
@@ -1056,7 +1075,6 @@
 (defrule asume_asignatura
     (declare (salience 5))
     (modulo asignaturas)
-    ; ?rc <- (recomendar_asignaturas)
     ; Para completar creditos
     ?cr <- (Creditos ?c)
     (test (> ?c 0))
