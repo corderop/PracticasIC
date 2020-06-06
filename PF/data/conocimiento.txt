@@ -1,49 +1,272 @@
-Porcentajes
+; -----------------------------------------------
+; PORCENTAJES DE IMPORTANCIA
+; - Que impotancia se le da a cada aspecto tenido 
+;   en cuenta
+; -----------------------------------------------
+
+Porcentajes:
 Dificultad 5
 Orientacion 10
 Tipo 10
 Asignaturas 60
 Conceptos 15
 
-Dificultad CSI 5
-Dificultad IS 3
-Dificultad IC 4 
-Dificultad SI 3 
-Dificultad TI 2
+; -----------------------------------------------
+; DIFICULTAD DE CADA RAMA
+; - 0 poca, 5 mucha
+; 
+; Formato de introduccion:
+; <Rama> <Dificultad>
+; -----------------------------------------------
 
-Orientacion CSI P
-Orientacion IS P
-Orientacion IC T
-Orientacion SI T
-Orientacion TI T
+Dificultad:
+CSI 5
+Dificultad:
+IS 3
+Dificultad:
+IC 4 
+Dificultad:
+SI 3 
+Dificultad:
+TI 3
 
-Tipo CSI S A
-Tipo IS S D
-Tipo IC H E
-Tipo SI S D
-Tipo TI H T
+; -----------------------------------------------
+; ORIENTACION DE CADA RAMA
+; - P -> Practica
+; - T -> Teorica
+; 
+; Formato de introduccion:
+; <Rama> <Orientacion>
+; -----------------------------------------------
 
-Asignatura SI Estructuras_de_datos
-Asignatura SI Fundamentos_de_bases_de_datos
+Orientacion:
+CSI P
+Orientacion:
+IS P
+Orientacion:
+IC T
+Orientacion:
+SI T
+Orientacion:
+TI T
 
-Asignatura IC Fundamentos_fisicos_y_tecnologicos
-Asignatura IC Tecnologia_y_organizacion_de_computadores
-Asignatura IC Estructuras_de_computadores
-Asignatura IC Arquitectura_de_computadores
+; -----------------------------------------------
+; TIPO DE CADA RAMA
+; - S -> Software 
+; |--- A -> Desarrollo de algoritmos
+; |--- D -> Desarrollo de software
+;
+; - H -> Hardware
+; |--- E -> Electronica
+; |--- T -> Orientado a telecomunicaciones
+; 
+; Formato de introduccion:
+; <Rama> <Tipo> <Modalidad de tipo>
+; -----------------------------------------------
 
-Asignatura TI Programacion_y_diseño_orientado_a_objetos
+Tipo:
+CSI S A
+Tipo:
+IS S D
+Tipo:
+IC H E
+Tipo:
+SI S D
+Tipo:
+TI H T
 
-Asignatura CSI Logica_y_metodos_discretos
-Asignatura CSI Inteligencia_Artificial
-Asignatura CSI Algoritmica
+; -----------------------------------------------
+; ASIGNATURAS PARA PREGUNTAR 
+; 
+; Formato de introduccion:
+; Asignatura
+; <Rama> <Nombre de la asignatura>
+; -----------------------------------------------
 
-Asignatura IS Fundamentos_del_software
-Asignatura IS Sistemas_concurrentes_y_distribuidos
-Asignatura IS Sistemas_operativos
-Asignatura IS Fundamentos_de_ingenieria_del_software
+Asignatura:
+SI Estructuras_de_datos
+Asignatura:
+SI Fundamentos_de_bases_de_datos
 
-Concepto TI Redes
-Concepto IS Programacion 
-Concepto SI Tratamiento_de_la_informacion
-Concepto CSI Resolucion_de_problemas
-Concepto IC Cloud_computing
+Asignatura:
+IC Fundamentos_fisicos_y_tecnologicos
+Asignatura:
+IC Tecnologia_y_organizacion_de_computadores
+Asignatura:
+IC Estructuras_de_computadores
+Asignatura:
+IC Arquitectura_de_computadores
+
+Asignatura:
+TI Programacion_y_diseño_orientado_a_objetos
+
+Asignatura:
+CSI Logica_y_metodos_discretos
+Asignatura:
+CSI Inteligencia_Artificial
+Asignatura:
+CSI Algoritmica
+
+Asignatura:
+IS Fundamentos_del_software
+Asignatura:
+IS Sistemas_concurrentes_y_distribuidos
+Asignatura:
+IS Sistemas_operativos
+Asignatura:
+IS Fundamentos_de_ingenieria_del_software
+
+; -----------------------------------------------
+; CONCEPTOS PARA PREGUNTAR 
+; 
+; Formato de introduccion:
+; Concepto:
+; <Rama> <Concepto>
+; -----------------------------------------------
+
+Concepto:
+TI Redes
+Concepto:
+IS Programacion 
+Concepto:
+SI Tratamiento_de_la_informacion
+Concepto:
+CSI Resolucion_de_problemas
+Concepto:
+IC Cloud_computing
+
+; -----------------------------------------------
+; ASIGNATURAS A RECOMENDAR 
+; - Solo para el módulo de asignaturas
+;
+; Asignatura_para_recomendar:
+; <Curso> <Nombre> <Dificultad> <Orientacion> <Tipo> <Modalidad de tipo>
+; -----------------------------------------------
+
+; -----------------------------------------------
+; Tercer curso
+; -----------------------------------------------
+
+Asignatura_para_recomendar:
+3 Aprendizaje_automatico 5 T S A
+
+Asignatura_para_recomendar:
+3 Metaheuristicas 3 P S A
+
+Asignatura_para_recomendar:
+3 Modelos_Avanzados_de_Computacion 4 T S A
+
+Asignatura_para_recomendar:
+3 Tecnicas_de_sistemas_Inteligentes 3 P S A
+
+Asignatura_para_recomendar:
+3 Ingenieria_del_conocimiento 3 T S A
+
+Asignatura_para_recomendar:
+3 Desarrollo_de_sistemas_distribuidos 4 T S D
+
+Asignatura_para_recomendar:
+3 Desarrollo_de_software 4 P S D
+
+Asignatura_para_recomendar:
+3 Diseno_de_interfaces_de_usuario 2 T S D
+
+Asignatura_para_recomendar:
+3 Sistemas_de_informacion_basados_en_web 3 P S D
+
+Asignatura_para_recomendar:
+3 Sistemas_graficos 4 P S D
+
+Asignatura_para_recomendar:
+3 Arquitectura_de_Sistemas 4 T S D
+
+Asignatura_para_recomendar:
+3 Arquitectura_y_Computacion_de_altas_prestaciones 4 T H E
+
+Asignatura_para_recomendar:
+3 Desarrollo_de_hardware_digital 3 P H E
+
+Asignatura_para_recomendar:
+3 Diseno_de_sistemas_electronicos 3 P H E
+
+Asignatura_para_recomendar:
+3 Sistemas_con_microprocesadores 5 T H E
+
+Asignatura_para_recomendar:
+3 Computacion_ubicua_e_inteligencia_ambiental 3 T H T
+
+Asignatura_para_recomendar:
+3 Servidores_web_de_altas_prestaciones 3 P H T
+
+Asignatura_para_recomendar:
+3 Sistemas_multimedia 3 P S D
+
+Asignatura_para_recomendar:
+3 Tecnologias_web 2 P S D
+
+Asignatura_para_recomendar:
+3 Transmision_de_datos_y_redes_de_computadores 4 T H T
+
+Asignatura_para_recomendar:
+3 Administracion_de_bases_de_datos 4 T S D
+
+Asignatura_para_recomendar:
+3 Ingenieria_de_sistemas_de_informacion 4 T S D
+
+Asignatura_para_recomendar:
+3 Programacion_web 2 P S D
+
+Asignatura_para_recomendar:
+3 Sistemas_de_informacion_para_empresas 3 T S D
+
+Asignatura_para_recomendar:
+3 Sistemas_multidimensionales 4 T H T
+
+; -----------------------------------------------
+; Cuarto curso
+; -----------------------------------------------
+
+Asignatura_para_recomendar:
+4 Nuevos_paradigmas_de_Interaccion 4 P S A
+
+Asignatura_para_recomendar:
+4 Procesadores_de_lenguajes 4 T S A
+
+Asignatura_para_recomendar:
+4 Vision_por_computador 5 T S A
+
+Asignatura_para_recomendar:
+4 Direccion_y_gestion_de_proyectos 3 P S D
+
+Asignatura_para_recomendar:
+4 Metodologias_de_desarrollo_agiles 3 P S D
+
+Asignatura_para_recomendar:
+4 Desarrollo_basado_en_agentes 4 P S A
+
+Asignatura_para_recomendar:
+4 Centro_de_procesamiento_de_datos 4 T H T
+
+Asignatura_para_recomendar:
+4 Sistemas_empotrados 3 P H E
+
+Asignatura_para_recomendar:
+4 Tecnologias_de_red 5 T H T
+
+Asignatura_para_recomendar:
+4 Desarrollo_de_aplicaciones_para_internet 4 P S D
+
+Asignatura_para_recomendar:
+4 Infraestructura_virtual 3 P S D
+
+Asignatura_para_recomendar:
+4 Seguridad_y_proteccion_de_sistemas_informaticos 5 P S A
+
+Asignatura_para_recomendar:
+4 Bases_de_datos_distribuidas 4 P S D
+
+Asignatura_para_recomendar:
+4 Inteligencia_de_negocio 3 P S A
+
+Asignatura_para_recomendar:
+4 Recuperacion_de_la_informacion 4 T H E

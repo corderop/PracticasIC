@@ -1,13 +1,6 @@
 ; Alumno:   Pablo Cordero Romero
 ;           77035152X
 
-; Propiedades a usar que emplearia el experto para realizar el consejo:
-; 
-; - (Dificultad 0|1|2|3|4|5), 0 sera cuando no le importe
-; - (Orientacion T|P|ns), ns sera cuando no le importe
-; - (Tipo S|H|ns), ns cuando no le importe
-; - (Asignaturas Rama %)
-
 ; --------------------------------------------------------------
 ;   LECTURA DE LA BASE DE CONOCIMIENTO
 ; --------------------------------------------------------------
@@ -36,7 +29,7 @@
         ; Si encuentra una linea comenzada por dificultad
         ; significará que esa linea contiene la dificultad
         ; de cada rama
-        (if (eq ?valor Dificultad) then
+        (if (eq ?valor Dificultad:) then
             (bind ?v1 (read file))
             (bind ?v2 (read file))
             (assert (Dificultad ?v1 ?v2))
@@ -44,7 +37,7 @@
         ; Si encuentra una linea comenzada por orientación
         ; significará que esa linea contiene la orientación
         ; de cada rama
-        (if (eq ?valor Orientacion) then
+        (if (eq ?valor Orientacion:) then
             (bind ?v1 (read file))
             (bind ?v2 (read file))
             (assert (Orientacion ?v1 ?v2))
@@ -52,7 +45,7 @@
         ; Si encuentra una linea comenzada por tipo
         ; significará que esa linea contiene la tipo
         ; de cada rama
-        (if (eq ?valor Tipo) then
+        (if (eq ?valor Tipo:) then
             (bind ?v1 (read file))
             (bind ?v2 (read file))
             (bind ?v3 (read file))
@@ -60,7 +53,7 @@
         )
         ; Aquí se obtendrá el porcentaje que se le dará a cada apartado
         ; según tenga más o menos importacia
-        (if (eq ?valor Porcentajes) then
+        (if (eq ?valor Porcentajes:) then
             (bind ?v (read file))
             (bind ?v1 (read file))
             (assert (Porcentaje_Dificultad ?v1))
@@ -78,16 +71,26 @@
             (assert (Porcentaje_Conceptos ?v1))
         )
         ; Se recoge la asociación de ramas con asignaturas
-        (if (eq ?valor Asignatura) then
+        (if (eq ?valor Asignatura:) then
             (bind ?v1 (read file))
             (bind ?v2 (read file))
             (assert (Asignatura ?v1 ?v2))
         )
         ; Se recoge la asociación de ramas con conceptos
-        (if (eq ?valor Concepto) then
+        (if (eq ?valor Concepto:) then
             (bind ?v1 (read file))
             (bind ?v2 (read file))
             (assert (Concepto ?v1 ?v2))
+        )
+        ; Se recoge una asignatura a recomendar
+        (if (eq ?valor Asignatura_para_recomendar:) then
+            (bind ?v1 (read file))
+            (bind ?v2 (read file))
+            (bind ?v3 (read file))
+            (bind ?v4 (read file))
+            (bind ?v5 (read file))
+            (bind ?v6 (read file))
+            (assert (AS ?v1 ?v2 ?v3 ?v4 ?v5 ?v6))
         )
         (assert (SeguirLeyendo))
     )
