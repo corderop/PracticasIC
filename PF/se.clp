@@ -7,24 +7,29 @@
     (modulo preguntas))
 
 ; --------------------------------------------------------------
-;  MODULO LEER DE LA BASE DE CONOCIMIENTO
+;  MODULO: LEER LA BASE DE CONOCIMIENTO
 ; --------------------------------------------------------------
 
 ; Abre el archivo 
 (defrule openfile_read
     (declare (salience 1000))
+    ; Declara a que módulo pertenece
     (modulo leer_base_de_conocimiento)
     =>
+    ; Abre el archivo a leer y lo almacena en file
     (open "/home/pcordero/Software/PracticasUGR/PracticasIC/PF/data/conocimiento.txt" file)
+    ; Inicia la lectura
     (assert (SeguirLeyendo))
 )
 
 ; Realiza la lectura de cada una de las lineas
 (defrule readfile
     (declare (salience 1000))
+    ; Declara a que módulo pertenece
     (modulo leer_base_de_conocimiento)
     ?f <- (SeguirLeyendo)
     =>
+    ; Almacena la palabra en la variable valor
     (bind ?valor (read file))
     (retract ?f)
     ; Realizado para detectar el final del archivo
@@ -99,6 +104,7 @@
     )
 )
 
+; Cierra el archivo y finaliza el módulo para leer de la base de conocimiento
 (defrule closefile_read
     (declare (salience 995))
     ?f <- (modulo leer_base_de_conocimiento)
@@ -114,32 +120,42 @@
 ; Pregunta por qué asesoramiento se quiere
 (defrule pregunta_modulo
     (declare (salience 960))
+    ; Módulo al que pertenece
     (modulo preguntas)
+    ; No hay ningun módulo principal cargado
     (not (modulo ramas))
     (not (modulo asignaturas))
     =>
     (printout t crlf "¿Qué quieres que te recomiende?" crlf "A) Que rama coger" crlf "B) Que asignaturas coger" crlf "Elige A o B: ")
+    ; Lectura del módulo en el hecho (eleccion_modulo)
     (assert (eleccion_modulo (read)))
 )
 
 ; Módulo mal elegido
 (defrule mal_eleccion_modulo
     (declare (salience 950))
+    ; Módulo al que pertenece
     (modulo preguntas)
     ?m <- (eleccion_modulo ?i)
+    ; Comprueba que no ha escogido entre las acciones posibles.
     (test (and (neq ?i A) (neq ?i B) ))
     =>
+    ; Borra el anterior
+    (retract ?m)
     (printout t crlf "Modulo mal introducido. Introduce uno válido: ")
+    ; Introduce uno nuevo
     (assert (eleccion_modulo (read)))
 )
 
 ; Lo crea según lo elegido
 (defrule creacion_modulo
     (declare (salience 940))
+    ; Módulo al que pertenece
     (modulo preguntas)
     ?m <- (eleccion_modulo ?i)
     =>
     (retract ?m)
+    ; Según lo introducido, añade el módulo correspondiente
     (if ( eq ?i A)
         then
             (assert (modulo ramas))
@@ -148,42 +164,60 @@
     )
 )
 
+; ---------------------
+; Preguntas del módulo
+; de recomendación de 
+; asignaturas
+; ---------------------
+
+; Pregunta por los créditos que quiere cursas el estudiante
 (defrule pregunta_creditos
     (declare (salience 930))
+    ; Módulos a los que pertenece
     (modulo preguntas)
     (modulo asignaturas)
+    ; No ha sido preguntado ya
     (not (Creditos ?))
     =>
     (printout t crlf "¿Cuantos creditos quieres cursar?: ")
     (assert (Creditos (read)))
 )
 
+; Créditos mal introducidos
 (defrule mal_eleccion_creditos
     (declare (salience 920))
+    ; Módulos a los que pertenece
     (modulo preguntas)
     (modulo asignaturas)
     ?m <- (Creditos ?i)
+    ; Valor no válido
     (test (> ?i 60))
     =>
     (printout t crlf "Los créditos deben estar entre 0 y 60. Introducelos de nuevo: ")
     (assert (Creditos (read)))
 )
 
+; Pregunta por el curso de las asignaturas a recomendar
 (defrule pregunta_curso
     (declare (salience 930))
+    ; Módulos a los que pertenece
     (modulo preguntas)
     (modulo asignaturas)
-    (not (curso ?))
+    ; No ha sido preguntado ya
+    (not (eleccion_curso ?))
     =>
     (printout t crlf "¿De qué curso quieres las asignaturas?" crlf "3) Tercero" crlf "4) Cuarto" crlf "0) Ambos" crlf "Introduce 3, 4 o 0: ")
     (assert (eleccion_curso (read)))
 )
 
+; Pregunta cuando se ha introducido mal
 (defrule mal_eleccion_curso
     (declare (salience 920))
+    ; Módulos a los que pertenece
     (modulo preguntas)
     (modulo asignaturas)
     ?m <- (eleccion_curso ?i)
+    ; Introducido un valor no válido
     (test (and (neq ?i 3) (neq ?i 4) (neq ?i 0) ))
     =>
     (printout t crlf "Curso mal introducido. Introduce uno válido: ")
@@ -194,57 +228,64 @@
 ; Preguntas comunes
 ; -------------------
 
-; Pregunta y chequea por la primera caracteristica (Dificultad)
+; Pregunta dificultad ---------------------
+
+; Pregunta por la primera caracteristica (Dificultad)
 (defrule introduce_dificultad
     (declare (salience 890))
+    ; Módulo al que pertenece
     (modulo preguntas)
-    ; ?m <- (preguntar_dificultad)
+    ; No existe ya una dificultad tomada
     (not (Dificultad ?))
+    ; No se ha leido ya la dificultad
     (not (Dificultad_leida))
     =>
     (printout t "Del 1 al 5, introduce la dificultad que estas dispuesto a asumir" crlf "Si no te importa la dificultad, introduce un 0: ")
     (assert (Dificultad (read)))
+    ; Indica que se ha leido la dificultad para que no la
+    ; vuelva a pedir cuando eliminemos al rezonar el hecho generado
     (assert (Dificultad_leida))
-    ; (assert (preguntar_orientacion))
-    ; (retract ?m)
 )
 
 ; Comprueba que la dificultad introducida sea correcta
 (defrule check_dificultad
     (declare (salience 890))
+    ; Módulo al que pertenece
     (modulo preguntas)
     ?d <- (Dificultad ?i)
+    ; La dificultad se sale del rango 1-5 y no es 0
+    ; por lo que es inválida
     (test (and (or (< ?i 1) (> ?i 5) ) (neq ?i 0)))
-    ; (not (Dificultad ?))
     =>
-    (printout t "La dificultad introducida no esta en el rango correcto (1...5 o 0)" crlf)
     (retract ?d)
+    (printout t "La dificultad introducida no esta en el rango correcto (1...5 o 0)" crlf)
     (assert (Dificultad (read)))
 )
-; ---------------------
+
+; Pregunta orientacion ---------------------
 
 ; Pregunta al usuario si se prefiere una orientacion mas teorica o practica de la materia
 (defrule introduce_orientacion
     (declare (salience 880))
+    ; Módulo al que pertenece
     (modulo preguntas)
-    ; Ha introducido el punto previo
-    ; ?m <- (preguntar_orientacion)
+    ; No existe una orientación ya tomada
     (not (Orientacion ?))
+    ; No se ha preguntado por la orientación
     (not (Orientacion_leida))
     =>
     (printout t crlf "En la mayoria de asignaturas hay una parte teorica y otra practica." crlf "Algunos alumnos prefieren estudiar mas contenidos teoricos y algunos otros contenidos mas practicos." crlf "Introduce 'T' para teoria o 'P' para practicas segun tu preferencia." crlf "Si no es algo que te importe, introduce 'ns': ")
     (assert (Orientacion (read)))
     (assert (Orientacion_leida))
-    ; (retract ?m)
-    ; (assert (preguntar_tipo))
 )
 
 ; Comprueba que la orientacion introducida es correcta
 (defrule check_orientacion
     (declare (salience 880))
+    ; Módulo al que pertenece
     (modulo preguntas)
-    ; Ha introducido el punto previo
     ?d <- (Orientacion ?i)
+    ; Comprueba que lo introducido es inválido
     (test (not (or (eq ?i T) (eq ?i P) (eq ?i ns) )))
     =>
     (printout t crlf "Solo puedes introducir como opciones 'T' para teoria o 'P' para practicas." crlf "Si te da igual introduce ns: ")
@@ -252,13 +293,14 @@
     (assert (Orientacion (read)))
 )
 
-; ---------------------
+; Pregunta el tipo ---------------------
 
 ; Pregunta si prefiere lo relacionado con software o hardware
 (defrule introduce_tipo
     (declare (salience 870))
+    ; Modulo al que pertenece
     (modulo preguntas)
-    ; ?m <- (preguntar_tipo)
+    ; No ha sido preguntado ya
     (not (Tipo ?))
     (not (Tipo ? ?))
     (not (Tipo_leido))
@@ -266,12 +308,12 @@
     (printout t crlf "Aunque algunas de las ramas estudien ambos campos complementados, es facil diferencias algunas asignaturas" crlf "segun si estan mas orientadas al software o al hardware" crlf "Introduce 'H' si te gusta mas estudiar sobre hardware y 'S' si prefieres hacerlo sobre software." crlf "Si no es algo que te importe, introduce 'ns': ")
     (assert (Tipo (read)))
     (assert (Tipo_leido))
-    ; (retract ?m)
 )
 
 ; Comprueba que el tipo introducido sea correcto
 (defrule check_tipo
     (declare (salience 870))
+    ; Módulo al que pertenece
     (modulo preguntas)
     ; Ha introducido el punto previo
     ?d <- (Tipo ?i)
@@ -282,76 +324,84 @@
     (assert (Tipo (read)))
 )
 
+; Pregunta que tipo específico de software prefiere
 (defrule introduce_tipo_de_software
     (declare (salience 869))
+    ; Módulo al que pertenece
     (modulo preguntas)
+    ; Ha introducido que prefiere el software
     ?m <- (Tipo S)
     =>
     (printout t crlf "Dentro de las asignaturas de software existen dos ramas: " crlf "D) Desarrollo de software" crlf "A) Desarrollo de algoritmos para resolución de problemas" crlf "Introduce 'D' o 'A' según prefieras." crlf "Si no es algo que te importe, introduce 'ns': "  )
     (assert (Tipo S (read)))
     (retract ?m)
-    (assert (preguntar_asignaturas))
 )
 
+; Comprueba que lo ha introducido correctamente
 (defrule check_tipo_de_software
     (declare (salience 869))
+    ; Módulo al que pertenece
     (modulo preguntas)
     (Tipo S ?a)
+    ; Comprueba entre los posibles
     (test (and (neq ?a D) (neq ?a A) (neq ?a ns)))
     =>
     (printout t crlf "Tipo de software mal introducido, introduzcalo de nuevo: ")
     (assert (Tipo S (read)))
 )
 
+; Pregunta que tipo específico de hardware prefiere
 (defrule introduce_tipo_de_hardware
     (declare (salience 869))
+    ; Módulo al que pertenece
     (modulo preguntas)
+    ; Ha introducido que prefiere el hardware
     ?m <- (Tipo H)
     =>
     (printout t crlf "Dentro de las asignaturas de hardware existen dos ramas: " crlf "E) Electronica" crlf "T) Telecomunicaciones" crlf "Introduce 'E' o 'T' según prefieras." crlf "Si no es algo que te importe, introduce 'ns': "  )
     (assert (Tipo H (read)))
     (retract ?m)
-    (assert (preguntar_asignaturas))
 )
 
+; Comprueba que lo ha introducido correctamente
 (defrule check_tipo_de_hardware
     (declare (salience 869))
+    ; Módulo al que pertenece
     (modulo preguntas)
     (Tipo H ?a)
+    ; Comprueba entre los posibles
     (test (and (neq ?a T) (neq ?a E) (neq ?a ns)))
     =>
     (printout t crlf "Tipo de hardware mal introducido, introduzcalo de nuevo: ")
     (assert (Tipo H (read)))
 )
 
-; -----------------------------------------------------------
-; SOLO MODULO RAMAS
-
 ; ---------------------
-; Ahora le presento las asignaturas que ya ha cursado el estudiante.
-; Cada asignatura normalmente esta orientada o es mas parecida a las de 
-; una rama u otra.
-; 
+; Preguntas del módulo
+; de recomendación de 
+; ramas
+; ---------------------
+
+; Pregunta al usuario si quiere ser preguntado por asignaturas anteriores
 (defrule previo_asignaturas
     (declare (salience 850))
+    ; Módulos a los que pertenece
     (modulo preguntas)
     (modulo ramas)
-    ; ?m <- (preguntar_asignaturas)
-    ; Ha introducido el punto previo
-    ; (preguntar_asignaturas)
     =>
     (printout t crlf "Ahora te voy a presentar una serie de asignaturas. Te voy a pedir que las puntues de 0 al 100 segun" crlf "te hayan gustado" crlf "Si no quieres realizar este test introduce 'no'." crlf "Si quieres realizarlo introduce 'si' o cualquier otra cosa: ")
     (assert (comienzo_asignaturas (read)))
-    ; (retract ?m)
-    ; (assert (preguntar_conceptos))
 )
 
 ; Lee 1 por 1 el valor de la asignatura
 (defrule leer_asig
     (declare (salience 850))
+    ; Módulos a los que pertenece
     (modulo preguntas)
     (modulo ramas)
+    ; Asignatura a preguntar
     ?a <- (Asignatura ?r ?na)
+    ; El usuario quiere responder a las asignaturas
     (comienzo_asignaturas ?i)
     (test (neq ?i no))
     =>
@@ -364,9 +414,11 @@
 ; Chequea si el valor de alguna asignatura no se ha introducido de forma valida
 (defrule chequea_asig_mal
     (declare (salience 851))
+    ; Módulos a los que pertenece
     (modulo preguntas)
     (modulo ramas)
     ?d <- (Asignatura ?r ?a ?b)
+    ; Puntuación mal introducida
     (test (not (and (>= ?b 0) (<= ?b 100))))
     =>
     (printout t "Has introducido mal el valor de :" ?a ". Introducelo de nuevo: ")
@@ -374,15 +426,11 @@
     (assert (Asignatura ?r ?a (read)))
 )
 
-; ---------------------
-; Por ultimo le presento una serie de conceptos relacionados con las diferentes ramas
-; El usuarios los puntuara 
-; 
-
+; Pregunta al usuario por una serie de conceptos relacionados con las ramas
 (defrule previo_conceptos
     (declare (salience 840))
+    ; Módulos a los que pertenece
     (modulo preguntas)
-    ; ?m <- (preguntar_conceptos)
     (modulo ramas)
     =>
     (printout t crlf "Por ultimo te voy a presentar una serie de conceptos relacionados con las ramas." crlf " Te voy a pedir que las puntues de 0 al 100 segun tu preferencia" crlf "Si no quieres realizar este test introduce 'no'." crlf "Si quieres realizarlo introduce 'si' o cualquier otra cosa: ")
@@ -393,10 +441,12 @@
 ; Lee 1 por 1 el valor de los conceptos
 (defrule leer_concepto
     (declare (salience 840))
+    ; Módulos a los que pertenece
     (modulo preguntas)
     (modulo ramas)
-    ?a <- (Concepto ?r ?nc)
     (comienzo_conceptos ?i)
+    ; Concepto por el que preguntar
+    ?a <- (Concepto ?r ?nc)
     (test (neq ?i no))
     =>
     (printout t ?nc ": ")
@@ -406,12 +456,14 @@
 
 (defrule chequea_conceptos_mal
     (declare (salience 841))
+    ; Módulos a los que pertenece
     (modulo preguntas)
     (modulo ramas)
     ?d <- (Concepto ?r ?a ?b)
+    ; Puntuación mal introducida
     (test (not (and (>= ?b 0) (<= ?b 100))))
     =>
-    (printout t "Has introducido mal el valor de :" ?a ". Introducelo de nuevo: ")
+    (printout t "Has introducido mal el valor de " ?a ". Introducelo de nuevo: ")
     (retract ?d)
     (assert (Concepto ?r ?a (read)))
 )
@@ -422,6 +474,7 @@
 
 ; ----------------------------------------
 ; Incentidumbre
+; ----------------------------------------
 
 (deffacts ince
     (modulo incertidumbre)
@@ -429,13 +482,14 @@
     (asumir_tipo)
 )
 
-; Reglas seguras
+; Reglas seguras -----------------
+
 ; Las características de la asignatura son las mismas que le gustan
 (defrule asume_orientacion
     (declare (salience 799))
-    ; (modulo incertidumbre)
     ?a <- (asumir_orientacion)
     (Orientacion ?o)
+    ; Orientación definida por el usuario
     (test (neq ?o ns))
     =>
     (if (eq ?o P) 
@@ -444,6 +498,7 @@
         else
             (bind ?exp (str-cat "Te gustan las asignaturas mas teoricas"))
     )
+    ; Genera la explicación
     (assert (explicacion Orientacion ?exp))
     (retract ?a)
 )
@@ -451,8 +506,8 @@
 (defrule asume_tipo
     (declare (salience 799))
     ?a <- (asumir_tipo)
-    ; (modulo incertidumbre)
     (Tipo ?o ?i)
+    ; Tipo definido de forma completa por el usuario
     (test (neq ?o ns))
     (test (neq ?i ns))
     =>
@@ -472,16 +527,21 @@
                     (bind ?exp (str-cat "Te gustan lo orientado a electronica"))
             )
     )
+    ; Genera la explicación
     (assert (explicacion Tipo ?exp))
     (retract ?a)
 )
 
-; Reglas por defecto
+; Reglas por defecto -----------------
+
+; Orientacion por defecto si no se introduce
 (defrule orientacion_por_defecto
     (declare (salience 750))
+    ; Módulo al que pertenece
     (modulo incertidumbre)
     ?a <- (asumir_orientacion)
     (Orientacion ?o)
+    ; No se ha decidido por la orientación
     (test (eq ?o ns))
     =>
     (bind ?exp (str-cat "La mayoría de alumnos prefieren asignaturas prácticas."))
@@ -492,9 +552,11 @@
 
 (defrule tipo_por_defecto
     (declare (salience 750))
+    ; Módulo al que pertenece
     (modulo incertidumbre)
     ?a <- (asumir_tipo)
     (Tipo ?o)
+    ; No se ha decidido por el tipo
     (test (eq ?o ns))
     =>
     (bind ?exp (str-cat "La mayoría de alumnos prefieren asignaturas relacionadas con el desarrollo de software."))
@@ -505,9 +567,11 @@
 
 (defrule tipo_de_software_por_defecto
     (declare (salience 750))
+    ; Módulo al que pertenece
     (modulo incertidumbre)
     ?a <- (asumir_tipo)
     (Tipo S ?o)
+    ; No se ha decidido por el tipo de software
     (test (eq ?o ns))
     =>
     (bind ?exp (str-cat "La mayoría de los alumnos a los que le gusta el software prefieren asignaturas relacionadas con el desarrollo de software."))
@@ -518,9 +582,11 @@
 
 (defrule tipo_de_hardware_por_defecto
     (declare (salience 750))
+    ; Módulo al que pertenece
     (modulo incertidumbre)
     ?a <- (asumir_tipo)
     (Tipo H ?o)
+    ; No se ha decidido por el tipo de hardware
     (test (eq ?o ns))
     =>
     (bind ?exp (str-cat "La mayoría de los alumnos a los que le gusta el hardware prefieren asignaturas relacionadas con la electronica"))
@@ -529,8 +595,9 @@
     (retract ?a)
 )
 
-; ----------------------------------------
-; Solo cuando Ramas: 
+; -----------------------------------------------------------
+;   Razonamiento ramas (MODULO RAMAS)
+; -----------------------------------------------------------
 
 (deffacts PuntuacionRamas
     (Rama Computacion_y_Sistemas_Inteligentes CSI 0)
@@ -857,23 +924,23 @@
     (test (and (neq ?r4 ?r1) (neq ?r4 ?r2) (neq ?r4 ?r3) (neq ?r4 ?r5)))
     (test (and (neq ?r5 ?r1) (neq ?r5 ?r2) (neq ?r5 ?r3) (neq ?r5 ?r4)))
     =>
-    (if (and (> ?v1 ?v2) (> ?v1 ?v3) (> ?v1 ?v4) (> ?v1 ?v5)) then
+    (if (and (>= ?v1 ?v2) (>= ?v1 ?v3) (>= ?v1 ?v4) (>= ?v1 ?v5)) then
         (assert (Rama_mayor ?r1))
         (assert (Rama_consejo ?R1))
     else
-        (if (and (> ?v2 ?v1) (> ?v2 ?v3) (> ?v2 ?v4) (> ?v2 ?v5)) then
+        (if (and (>= ?v2 ?v1) (>= ?v2 ?v3) (>= ?v2 ?v4) (>= ?v2 ?v5)) then
             (assert (Rama_mayor ?r2))
             (assert (Rama_consejo ?R2))
         else
-            (if (and (> ?v3 ?v1) (> ?v3 ?v2) (> ?v3 ?v4) (> ?v3 ?v5)) then
+            (if (and (>= ?v3 ?v1) (>= ?v3 ?v2) (>= ?v3 ?v4) (>= ?v3 ?v5)) then
                 (assert (Rama_mayor ?r3))
                 (assert (Rama_consejo ?R3))
             else
-                (if (and (> ?v4 ?v1) (> ?v4 ?v2) (> ?v4 ?v3) (> ?v4 ?v5)) then
+                (if (and (>= ?v4 ?v1) (>= ?v4 ?v2) (>= ?v4 ?v3) (>= ?v4 ?v5)) then
                     (assert (Rama_mayor ?r4))
                     (assert (Rama_consejo ?R4))
                 else
-                    (if (and (> ?v5 ?v1) (> ?v5 ?v2) (> ?v5 ?v3) (> ?v5 ?v4)) then
+                    (if (and (>= ?v5 ?v1) (>= ?v5 ?v2) (>= ?v5 ?v3) (>= ?v5 ?v4)) then
                         (assert (Rama_mayor ?r5))
                         (assert (Rama_consejo ?R5))
                     else
@@ -1032,16 +1099,22 @@
 ;   Razonamiento asignaturas (MODULO ASIGNATURAS)
 ; -----------------------------------------------------------
 
+; Toma asignaturas con todas las características igual a las tomadas
 (defrule asume_asignatura
     (declare (salience 5))
+    ; Módulo
     (modulo asignaturas)
     ; Para completar creditos
     ?cr <- (Creditos ?c)
     (test (> ?c 0))
     ; Si todo concuerda con lo elegido por el usuario
     ?a <- (AS ?cs ?n ?d ?o ?t1 ?t2)
+    ; Curso de la asignatura
     (eleccion_curso ?ic)
+    ; No le importa el curso al usuario si es 0
+    ; Si no tiene que coincidir con el especificado
     (test (or (= ?ic 0) (= ?ic ?cs)))
+    ; Comprueba que coincide todo
     (Dificultad ?dc)
     (Orientacion ?oc)
     (Tipo ?tc1 ?tc2)
@@ -1055,24 +1128,28 @@
     (printout t "Estas dispuesto a asumir la dificultad" crlf )
     (printout t ?expO crlf)
     (printout t ?expT crlf)
-    ; (retract ?rc)
+    ; Actualiza los créditos
     (retract ?cr)
-    ; (assert (recomendar_asignaturas))
     (assert (Creditos (- ?c 6)))
+    ; Elimina  la asignatura porque ya ha sido recomendada
     (retract ?a)
 )
 
 (defrule asume_asignatura_con_diferente_orientacion
     (declare (salience 4))
+    ; Módulo
     (modulo asignaturas)
-    ; ?rc <- (recomendar_asignaturas)
     ; Para completar creditos
     ?cr <- (Creditos ?c)
     (test (> ?c 0))
     ; Si todo concuerda con lo elegido por el usuario
     ?a <- (AS ?cs ?n ?d ?o ?t1 ?t2)
+    ; Curso de la asignatura
     (eleccion_curso ?ic)
+    ; No le importa el curso al usuario si es 0
+    ; Si no tiene que coincidir con el especificado
     (test (or (= ?ic 0) (= ?ic ?cs)))
+    ; Comprueba que coincide todo menos la orientacion
     (Dificultad ?dc)
     (Orientacion ?oc)
     (Tipo ?tc1 ?tc2)
@@ -1084,24 +1161,28 @@
     (printout t crlf (str-cat "He elegido la asignatura " ?n " por las siguientes razones: ") crlf)
     (printout t "Estas dispuesto a asumir la dificultad" crlf )
     (printout t ?expT crlf)
-    ; (retract ?rc)
+    ; Actualiza los créditos
     (retract ?cr)
-    ; (assert (recomendar_asignaturas))
     (assert (Creditos (- ?c 6)))
+    ; Elimina  la asignatura porque ya ha sido recomendada
     (retract ?a)
 )
 
 (defrule asume_asignatura_con_diferente_tipo
     (declare (salience 4))
+    ; Módulo
     (modulo asignaturas)
-    ; ?rc <- (recomendar_asignaturas)
     ; Para completar creditos
     ?cr <- (Creditos ?c)
     (test (> ?c 0))
     ; Si todo concuerda con lo elegido por el usuario
     ?a <- (AS ?cs ?n ?d ?o ?t1 ?t2)
+    ; Curso de la asignatura
     (eleccion_curso ?ic)
+    ; No le importa el curso al usuario si es 0
+    ; Si no tiene que coincidir con el especificado
     (test (or (= ?ic 0) (= ?ic ?cs)))
+    ; Comprueba que coincide todo menos el tipo
     (Dificultad ?dc)
     (Orientacion ?oc)
     (Tipo ?tc1 ?tc2)
@@ -1113,24 +1194,28 @@
     (printout t crlf (str-cat "He elegido la asignatura " ?n " por las siguientes razones: ") crlf)
     (printout t "Estas dispuesto a asumir la dificultad" crlf )
     (printout t ?expO crlf)
-    ; (retract ?rc)
+    ; Actualiza los créditos
     (retract ?cr)
-    ; (assert (recomendar_asignaturas))
     (assert (Creditos (- ?c 6)))
+    ; Elimina  la asignatura porque ya ha sido recomendada
     (retract ?a)
 )
 
 (defrule asume_asignatura_con_diferente_orientacion_y_tipo
     (declare (salience 3))
+    ; Módulo
     (modulo asignaturas)
-    ; ?rc <- (recomendar_asignaturas)
     ; Para completar creditos
     ?cr <- (Creditos ?c)
     (test (> ?c 0))
     ; Si todo concuerda con lo elegido por el usuario
     ?a <- (AS ?cs ?n ?d ?o ?t1 ?t2)
+    ; Curso de la asignatura
     (eleccion_curso ?ic)
+    ; No le importa el curso al usuario si es 0
+    ; Si no tiene que coincidir con el especificado
     (test (or (= ?ic 0) (= ?ic ?cs)))
+    ; Comprueba que coincide todo menos la orientacion y el tipo
     (Dificultad ?dc)
     (Orientacion ?oc)
     (Tipo ?tc1 ?tc2)
@@ -1140,21 +1225,21 @@
     =>
     (printout t crlf (str-cat "He elegido la asignatura " ?n " por las siguientes razones: ")crlf)
     (printout t "Estas dispuesto a asumir la dificultad" crlf )
-    ; (retract ?rc)
+    ; Actualiza los créditos
     (retract ?cr)
-    ; (assert (recomendar_asignaturas))
     (assert (Creditos (- ?c 6)))
+    ; Elimina  la asignatura porque ya ha sido recomendada
     (retract ?a)
 )
+
+; A partir de aquí igual que lo anterior pero con la dificultad mayor 
+; en la asignatura
 
 (defrule asume_asignatura_mas_dificil
     (declare (salience 2))
     (modulo asignaturas)
-    ; ?rc <- (recomendar_asignaturas)
-    ; Para completar creditos
     ?cr <- (Creditos ?c)
     (test (> ?c 0))
-    ; Si todo concuerda con lo elegido por el usuario
     ?a <- (AS ?cs ?n ?d ?o ?t1 ?t2)
     (eleccion_curso ?ic)
     (test (or (= ?ic 0) (= ?ic ?cs)))
@@ -1170,9 +1255,7 @@
     (printout t crlf (str-cat "He elegido la asignatura " ?n " por las siguientes razones: ") crlf)
     (printout t ?expO crlf)
     (printout t ?expT crlf)
-    ; (retract ?rc)
     (retract ?cr)
-    ; (assert (recomendar_asignaturas))
     (assert (Creditos (- ?c 6)))
     (retract ?a)
 )
@@ -1180,11 +1263,8 @@
 (defrule asume_asignatura_mayor_dificultad_diferente_orientacion
     (declare (salience 1))
     (modulo asignaturas)
-    ; ?rc <- (recomendar_asignaturas)
-    ; Para completar creditos
     ?cr <- (Creditos ?c)
     (test (> ?c 0))
-    ; Si todo concuerda con lo elegido por el usuario
     ?a <- (AS ?cs ?n ?d ?o ?t1 ?t2)
     (eleccion_curso ?ic)
     (test (or (= ?ic 0) (= ?ic ?cs)))
@@ -1198,9 +1278,7 @@
     =>
     (printout t crlf (str-cat "He elegido la asignatura " ?n " por las siguientes razones: ") crlf)
     (printout t ?expT crlf)
-    ; (retract ?rc)
     (retract ?cr)
-    ; (assert (recomendar_asignaturas))
     (assert (Creditos (- ?c 6)))
     (retract ?a)
 )
@@ -1208,11 +1286,8 @@
 (defrule asume_asignatura_mayor_dificultad_diferente_tipo
     (declare (salience 1))
     (modulo asignaturas)
-    ; ?rc <- (recomendar_asignaturas)
-    ; Para completar creditos
     ?cr <- (Creditos ?c)
     (test (> ?c 0))
-    ; Si todo concuerda con lo elegido por el usuario
     ?a <- (AS ?cs ?n ?d ?o ?t1 ?t2)
     (eleccion_curso ?ic)
     (test (or (= ?ic 0) (= ?ic ?cs)))
@@ -1226,9 +1301,7 @@
     =>
     (printout t crlf (str-cat "He elegido la asignatura " ?n " por las siguientes razones: ") crlf)
     (printout t ?expO crlf)
-    ; (retract ?rc)
     (retract ?cr)
-    ; (assert (recomendar_asignaturas))
     (assert (Creditos (- ?c 6)))
     (retract ?a)
 )
@@ -1236,11 +1309,8 @@
 (defrule asume_asignatura_mayor_dificultad_diferente_orientacion_y_tipo
     (declare (salience 0))
     (modulo asignaturas)
-    ; ?rc <- (recomendar_asignaturas)
-    ; Para completar creditos
     ?cr <- (Creditos ?c)
     (test (> ?c 0))
-    ; Si todo concuerda con lo elegido por el usuario
     ?a <- (AS ?cs ?n ?d ?o ?t1 ?t2)
     (eleccion_curso ?ic)
     (test (or (= ?ic 0) (= ?ic ?cs)))
@@ -1252,9 +1322,7 @@
     (test (neq ?t2 ?tc2))
     =>
     (printout t crlf (str-cat "He elegido la asignatura " ?n " por las siguientes razones: ") crlf)
-    ; (retract ?rc)
     (retract ?cr)
-    ; (assert (recomendar_asignaturas))
     (assert (Creditos (- ?c 6)))
     (retract ?a)
 )

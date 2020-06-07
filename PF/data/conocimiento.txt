@@ -1,7 +1,7 @@
 ; -----------------------------------------------
 ; PORCENTAJES DE IMPORTANCIA
-; - Que impotancia se le da a cada aspecto tenido 
-;   en cuenta
+; - Que procentaje de impotancia se le da a cada 
+;   aspecto tenido en cuenta sobre 100
 ; -----------------------------------------------
 
 Porcentajes:
