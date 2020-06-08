@@ -1,5 +1,4 @@
 ; Alumno:   Pablo Cordero Romero
-;           77035152X
 
 ; Indica que se inicie la lectura
 (deffacts modulos
@@ -17,7 +16,7 @@
     (modulo leer_base_de_conocimiento)
     =>
     ; Abre el archivo a leer y lo almacena en file
-    (open "/home/pcordero/Software/PracticasUGR/PracticasIC/PF/data/conocimiento.txt" file)
+    (open "data/conocimiento.txt" file)
     ; Inicia la lectura
     (assert (SeguirLeyendo))
 )
